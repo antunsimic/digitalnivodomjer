@@ -18,3 +18,6 @@ Po mogućnosti u DBMS, kao što je MySQL  ili Microsoft Access.
 
 - strojno učenje za predviđanje potrošnje: aplikacija predviđa buduću potrošnju vode na temelju povijesnih podataka.
 - vizualizaciju potrošnje kroz grafove, mogućnost filtriranja i sortiranja stanova po potrošnji
+
+  https://uniri-my.sharepoint.com/:f:/g/personal/antun_simic_student_uniri_hr/EoMVbK3zEMRKgE4ky2d-yKcBupkDx5TVJiW5EJRowkDePQ?e=32OrKh
+  

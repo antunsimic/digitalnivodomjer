@@ -20,7 +20,7 @@ class RFU30:
         self.K = K # reserva (za proizvođača)                                   (int)
         
         # datum zadnjeg dana u mjesecu (datum, spremljen kao string)
-        self.datum_m3 = ((A - dt.timedelta(days = (A.day+1))).strftime("%d.%m.%Y")) 
+        self.datum_m3 = ((A - dt.timedelta(days = (A.day))).strftime("%d.%m.%Y")) 
 
 # svi podatci datoteke spremljeni u listu
 ParsedData = []
@@ -33,7 +33,7 @@ data = f.readlines()
 for l in data:
     p = l.split()
     if len(p) > 1:
-        ParsedData.append(RFU30(dt.datetime.strptime(p[0], '%m.%d.%Y'),
+        ParsedData.append(RFU30(dt.datetime.strptime(p[0], '%d.%m.%Y'),
                             int(p[1]),
                             p[2],
                             p[3],

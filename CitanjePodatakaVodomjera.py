@@ -2,6 +2,7 @@
 
 import datetime as dt
 import os
+import sqlite3
 
 # deklaracija klase koja sadržava sve potrebne informacije
 # float varijable su spremljene kao stringovi da se izbjegnu krivi zapisi zbog nepreciznosti float vrijable
@@ -26,8 +27,8 @@ class RFU30:
 # svi podatci datoteke spremljeni u listu
 ParsedData = []
 
-#promijeniti - zelimo otvarati sve Apator-(...).txt datoteke
-#name = input("Enter filename: ")
+
+
 
 apator_files = [file for file in os.listdir() if file.endswith('.txt')]
 
@@ -50,7 +51,24 @@ for file in apator_files:
                                 p[9], int(p[10])))
 
 
-#uzimaju se A,B,C,G,datum_m3 i stavljaju u bazu podataka (todo)
+#uzimaju se A,B,C,G,datum_m3 i stavljaju u bazu podataka:
+#prolazi se kroz sve (3) .txt datoteke, u tablicu Ocitanje se unose podaci
+
+conn = sqlite3.connect('vodomjeri.db') #uspostava veze s lokalnom bazom podataka
+
+cursor = conn.cursor() #koristi se za SQL naredbe
+
+  
+for unos in ParsedData:
+                                          #TEXT       INTEGER         REAL              INTEGER         TEXT         INTEGER[prazno]
+                            #Ocitanje: Datum_tren,   Broj_rmodul, Potrosnja_preth_mj, Stanje_tren, Datum_preth_mj, (Stanje_preth_mj)
+    conn.execute(f"INSERT INTO Ocitanje (Datum_tren, Broj_rmodul, Potrosnja_preth_mj, Stanje_tren, Datum_preth_mj) VALUES ('{unos.A}', {unos.B}, {float(unos.C.replace(',', '.'))}, {unos.G}, '{unos.datum_m3}')")
+    #umjesto pretvaranja u float ovdje, to je moguce napraviti pri dodavanju u listu, makar nema veze
+
+conn.commit()
+conn.close() #zatvaranje veze s bazom podataka
+
+
 
 #testiranje primjer
 #print(ParsedData[600].A)

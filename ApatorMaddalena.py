@@ -95,7 +95,8 @@ for file in excel_files:
     Datum_m3_help = (Help - pd.offsets.MonthEnd(1)).dt.date
     #data['Datum_m3'] = pd.to_datetime(data['Datum_m3_help']).dt.strftime("%d.%m.%Y")   
     data['Datum_m3'] = pd.to_datetime(Datum_m3_help).dt.strftime("%d.%m.%Y")            #unosi se u bazu
-    data['Timestamp'] = pd.to_datetime(data['Timestamp']).dt.strftime("%m.%d.%Y")       #unosi se u bazu
+    data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True, format="mixed")
+    data['Timestamp'] = data['Timestamp'].dt.strftime("%d.%m.%Y")
     data_frames.append(data)
 #1 data_frames element => 1 excel datoteka
 

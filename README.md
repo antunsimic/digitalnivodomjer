@@ -14,10 +14,10 @@ Slanje svih formiranih XLS-a u jednoj poruci na adresu e-pošte distributera vod
 
 Učitavanje bankovnih izvoda s uplatama korisnika vodomjera za uslugu očitavanja vodomjera. Primjer: IZV_HR2924070001100072069_01092023-30092023.otp datoteka. 
 
-Po mogućnosti u DBMS, kao što je MySQL  ili Microsoft Access.
+Kao DBMS koristi se SQLite.
 
 - strojno učenje za predviđanje potrošnje: aplikacija predviđa buduću potrošnju vode na temelju povijesnih podataka.
 - vizualizaciju potrošnje kroz grafove, mogućnost filtriranja i sortiranja stanova po potrošnji
 
-
+Mapa sa svim potrebnim datotekama: https://uniri-my.sharepoint.com/:f:/r/personal/antun_simic_student_uniri_hr/Documents/6.%20semestar/Programsko%20in%C5%BEenjerstvo/projekt/Vodomjeri?csf=1&web=1&e=FCqf22
   

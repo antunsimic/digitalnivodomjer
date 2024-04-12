@@ -2,14 +2,13 @@ import datetime
 import os
 import sqlite3
 import pandas as pd  # biblioteka za rad s podacima
-import os  # za pristupanje datotekama u direktoriju
 
 # deklaracija klase koja sadržava sve potrebne informacije
 # float varijable su spremljene kao stringovi da se izbjegnu krivi zapisi zbog nepreciznosti float vrijable
 class RFU30:
     def __init__(self, A, B, C, D, E, F, G, H, I, J, K):
         temp = A
-        self.A = A.strftime("%d.%m.%Y") # Datum mjerenja                        (datum, spremljen kao string)
+        self.A = A.strftime("%Y.%m.%d") # Datum mjerenja                        (datum, spremljen kao string)
         self.B = B # serijski broj E-RM30 modula                                (int)
         self.C = C # unaprijedna potrošnja u prošlom periodu plačanja           (float, ali spremljen kao string)
         self.D = D # peteroznamenkasti kod za unaprijednu potrošnju             (string)
@@ -22,7 +21,7 @@ class RFU30:
         self.K = K # reserva (za proizvođača)                                   (int)
         
         # datum zadnjeg dana u mjesecu (datum, spremljen kao string)
-        self.datum_m3 = ((A - datetime.timedelta(days = (A.day))).strftime("%d.%m.%Y")) 
+        self.datum_m3 = ((A - datetime.timedelta(days = (A.day))).strftime("%Y.%m.%d")) 
 
 
 class Maddalena:
@@ -74,7 +73,7 @@ for file in apator_files:
 ###################    MADDALENA PARSING   ########################################
 
 data_frames = []                                                         #za pandas
-excel_files = [file for file in os.listdir() if file.endswith('.xlsx')]  #sve excel datoteke u trenutnom direktoriju
+excel_files = [file for file in os.listdir() if file.endswith(('.xlsx', '.xls'))]  # sve excel datoteke u trenutnom direktoriju
 ParsedDataMaddalena = []                                                 #za laksu iteraciju kroz podatke te spremanje u bazu
 
 
@@ -94,9 +93,9 @@ for file in excel_files:
     #data['Datum_m3_help'] = (data['Help'] - pd.offsets.MonthEnd(1)).dt.date
     Datum_m3_help = (Help - pd.offsets.MonthEnd(1)).dt.date
     #data['Datum_m3'] = pd.to_datetime(data['Datum_m3_help']).dt.strftime("%d.%m.%Y")   
-    data['Datum_m3'] = pd.to_datetime(Datum_m3_help).dt.strftime("%d.%m.%Y")            #unosi se u bazu
-    data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True, format="mixed")
-    data['Timestamp'] = data['Timestamp'].dt.strftime("%d.%m.%Y")
+    data['Datum_m3'] = pd.to_datetime(Datum_m3_help).dt.strftime("%Y.%m.%d")            #unosi se u bazu
+    data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True)
+    data['Timestamp'] = data['Timestamp'].dt.strftime("%Y.%m.%d")
     data_frames.append(data)
 #1 data_frames element => 1 excel datoteka
 
@@ -113,20 +112,20 @@ for frame in data_frames:
     #iterirati od 0 do 27 (valjda je to max broj unosa u tablici)
     for i in range(28):
         
-        datum_m3 = pd.to_datetime(frame['Datum_m3'][i], format="%d.%m.%Y") #kraj prethodnog mjeseca od referente točke
+        datum_m3 = pd.to_datetime(frame['Datum_m3'][i], format="%Y.%m.%d") #kraj prethodnog mjeseca od referente točke
         datum_m3_m3 = (datum_m3 - pd.offsets.MonthEnd(1))                  #kraj pret-prethodnog mjeseca
-        datum_m3_m3 = datum_m3_m3.strftime('%d.%m.%Y')                     #pretvorba u string
+        datum_m3_m3 = datum_m3_m3.strftime('%Y.%m.%d')                     #pretvorba u string
 
         cur.execute(f"SELECT Stanje_tren FROM Ocitanje WHERE Broj_rmodul={frame['Module serial'][i]} AND Datum_preth_mj='{datum_m3_m3}'") #filtriraju se stanja iz predzadnjeg ocitanja 
 
         stanje = cur.fetchone()
         if stanje is not None: #moguće je da nema unosa stanja u prethodnom mjesecu u tablici (greška je kod formatiranja datuma u bazi podataka)
-            stanje_predzadnje_ocitanje = stanje[0]
+            stanje_predzadnje_Ocitanje = stanje[0]
         else:
-            stanje_predzadnje_ocitanje = 0
+            stanje_predzadnje_Ocitanje = 0
 
 
-        potrosnja_preth_mj = float(float(frame['Value7'][i])*1000 - stanje_predzadnje_ocitanje) / 1000
+        potrosnja_preth_mj = float(float(frame['Value7'][i])*1000 - stanje_predzadnje_Ocitanje) / 1000
 
         #print("{:.1f}".format(potrosnja_preth_mj))
 
@@ -155,5 +154,3 @@ print(f"Napravljeno je {brojUnosa} unosa u bazu podataka")
 
 conn.commit()
 conn.close() #zatvaranje veze s bazom podataka
-
-

@@ -29,12 +29,12 @@ for korisnik in korisnici:
         datum_tren = cursor.fetchone()
 
         if datum_preth_mj:
-            datum_preth_mj = datum.strptime(datum_preth_mj[0], "%m/%d/%Y %H:%M:%S")
+            datum_preth_mj = datum.strptime(datum_preth_mj[0], "%Y.%m.%d")
             # formatiranje u GGGGMM
             mjesec_godina = datum_preth_mj.strftime('%Y%m')
             
             #d ohvati sva ocitanja za taj mjesec
-            cursor.execute('SELECT DISTINCT Potrosnja_preth_mj FROM Ocitanje WHERE Broj_rmodul = ? AND Datum_preth_mj = ?', (rmodul[0], datum_preth_mj.strftime('%m/%d/%Y %H:%M:%S'),))
+            cursor.execute('SELECT DISTINCT Potrosnja_preth_mj FROM Ocitanje WHERE Broj_rmodul = ? AND Datum_preth_mj = ?', (rmodul[0], datum_preth_mj.strftime('%Y.%m.%d'),))
             ocitanja = cursor.fetchall()
 
             if ocitanja:

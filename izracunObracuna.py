@@ -13,7 +13,7 @@ def upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_t
     #print(result)
 
     if result == 0:  
-        print("Inserting for korisnik_id:", korisnik_id, "rmodul:", rmodul[0], "mjesec_godina:", mjesec_godina, "zbroj_ocitanja:", zbroj_ocitanja, "datum_tren:", datum_tren)
+        print("Inserting for korisnik_id:", korisnik_id, "rmodul:", rmodul[0], "mjesec_godina:", mjesec_godina, "zbroj_ocitanja:", round(zbroj_ocitanja, 2), "datum_tren:", datum_tren)
         cursor.execute('INSERT INTO Obracun (ID_obracun, ID_korisnik, Razdoblje_obracun, Potrosnja_hv, Datum_obracun) VALUES (?, ?, ?, ?, ?)', (obracun_id, korisnik_id, mjesec_godina, round(zbroj_ocitanja, 2), datum_tren))
         conn.commit()
     else:
@@ -33,9 +33,6 @@ for korisnik in korisnici:
     datum_preth_mj = cursor.fetchone()[0]
     #print("dat Preth", datum_preth_mj)
 
-    # selectaj najnoviji datum tren na vec odabranom datum_preth_mj
-    cursor.execute('SELECT DISTINCT Datum_tren FROM Ocitanje WHERE Datum_preth_mj = ? ORDER BY Datum_tren DESC LIMIT 1', (datum_preth_mj,))
-    datum_tren = cursor.fetchone()[0]
 
     datum_preth_mj = datum.strptime(datum_preth_mj, "%Y.%m.%d")
     # formatiranje u GGGGMM
@@ -58,8 +55,19 @@ for korisnik in korisnici:
     cursor.execute('SELECT DISTINCT Broj_rmodul FROM Korisnik_oprema WHERE ID_korisnik = ?', (korisnik_id,))
     rmoduli = cursor.fetchall()
 
+    datum_tren = None
+    # Odabir datum_trena tako da se prođe skup rmdoula na datum_preth_mj i nađe najnoviji datum_tren ocitanja
+    for rmodul in rmoduli:
+        cursor.execute('SELECT DISTINCT Datum_tren FROM Ocitanje WHERE Broj_rmodul = ? AND Datum_preth_mj = ? ORDER BY Datum_tren DESC LIMIT 1', (rmodul[0], datum_preth_mj.strftime('%Y.%m.%d'),))
+        latest_datum_tren = cursor.fetchone()
+        #print(latest_datum_tren)
+        if latest_datum_tren:
+            latest_datum_tren = latest_datum_tren[0]
+            if datum_tren is None or datum_tren < latest_datum_tren:
+                datum_tren = latest_datum_tren
+
+
     zbroj_ocitanja = 0
-    avg_ocitanje = 0
     for rmodul in rmoduli:
         #print("rmodul: ", rmodul[0])
         # dohvati potrosnju vezanu za trenutni rmodul

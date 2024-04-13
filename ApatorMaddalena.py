@@ -117,7 +117,8 @@ for frame in data_frames:
             stanje_predzadnje_Ocitanje = 0
 
         potrosnja_preth_mj = float(float(frame['Value7'][tableRow])*1000 - stanje_predzadnje_Ocitanje) / 1000
-
+        if potrosnja_preth_mj>90000 or potrosnja_preth_mj<0:
+            potrosnja_preth_mj = 0
         #print("{:.2f}".format(potrosnja_preth_mj))
 
         ParsedDataMaddalena.append(Maddalena(frame['Module serial'][tableRow], frame['Timestamp'][tableRow], frame['Reading'][tableRow], frame['Value7'][tableRow], frame['Datum_m3'][tableRow], potrosnja_preth_mj))

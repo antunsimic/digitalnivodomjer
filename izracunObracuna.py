@@ -38,9 +38,9 @@ for korisnik in korisnici:
     # formatiranje u GGGGMM
     mjesec_godina = datum_preth_mj.strftime('%Y%m')
 
-    # pronađi max id_obracuna
+    # pronađi max ID_obracuna
     cursor.execute('''
-        SELECT MAX(id_obracun)
+        SELECT MAX(ID_obracun)
         FROM Obracun
     ''')
     max_obracun_id = cursor.fetchone()[0]

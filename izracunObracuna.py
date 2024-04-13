@@ -5,7 +5,7 @@ from datetime import datetime as datum
 conn = sqlite3.connect('vodomjeri.db')
 cursor = conn.cursor()
 
-def upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_tren):
+def upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_tren, izvor="ocitanje"):
 
     # provjera postoji li vec u tablici
     cursor.execute('SELECT COUNT(*) FROM Obracun WHERE ID_korisnik = ? AND Razdoblje_obracun = ? AND Datum_obracun = ?', (korisnik_id, mjesec_godina, datum_tren))
@@ -13,11 +13,11 @@ def upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_t
     #print(result)
 
     if result == 0:  
-        print("Inserting for korisnik_id:", korisnik_id, "rmodul:", rmodul[0], "mjesec_godina:", mjesec_godina, "zbroj_ocitanja:", round(zbroj_ocitanja, 2), "datum_tren:", datum_tren)
-        cursor.execute('INSERT INTO Obracun (ID_obracun, ID_korisnik, Razdoblje_obracun, Potrosnja_hv, Datum_obracun) VALUES (?, ?, ?, ?, ?)', (obracun_id, korisnik_id, mjesec_godina, round(zbroj_ocitanja, 2), datum_tren))
+        print("Inserting for korisnik_id:", korisnik_id, "rmodul:", rmodul[0], "mjesec_godina:", mjesec_godina, "zbroj_ocitanja:", round(zbroj_ocitanja, 2), "datum_tren:", datum_tren, "izvor:", izvor)
+        cursor.execute('INSERT INTO Obracun (ID_obracun, ID_korisnik, Razdoblje_obracun, Potrosnja_hv, Datum_obracun, Izvor_obracun) VALUES (?, ?, ?, ?, ?, ?)', (obracun_id, korisnik_id, mjesec_godina, round(zbroj_ocitanja, 2), datum_tren, izvor))
         conn.commit()
     else:
-        print("Skipping insertion for korisnik_id:", korisnik_id, "mjesec_godina:", mjesec_godina, "zbroj_ocitanja:", round(zbroj_ocitanja, 2), "datum_tren:", datum_tren)
+        print("Skipping insertion for korisnik_id:", korisnik_id, "mjesec_godina:", mjesec_godina, "zbroj_ocitanja:", round(zbroj_ocitanja, 2), "datum_tren:", datum_tren, "izvor:", izvor)
 
 
 
@@ -78,6 +78,7 @@ for korisnik in korisnici:
         # ako je ocitanje nadeno zbroji potrosnju u ukupno ocitanje
         if potrosnja_preth_mj is not None:
             zbroj_ocitanja += potrosnja_preth_mj
+            
         #ako nije nađeno ocitanje za neki od rmodul umjesto zbroja uzimaju se vrijednosti potrošnje zadnjih 6 mjeseci iz obračuna 
         else:
             cursor.execute('SELECT DISTINCT Potrosnja_hv FROM Obracun WHERE ID_korisnik = ? ORDER BY Razdoblje_obracun DESC LIMIT 6', (korisnik_id,))
@@ -92,7 +93,7 @@ for korisnik in korisnici:
             zbroj_ocitanja = sum(obracun[0] for obracun in obracuni) / len(obracuni)
             
             # ako ne postoji - umetni 
-            upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_tren)
+            upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_tren, izvor="prosjek")
             
     # AKO SE REDAK VEĆ POPUNIO u slučaju kad fali ocitanje, provjera bi trebala zaustavit ponovno popunjavanje
     upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_tren)

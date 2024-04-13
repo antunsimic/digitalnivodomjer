@@ -38,9 +38,6 @@ class Maddalena:
 # svi podatci datoteke spremljeni u listu
 ParsedDataApator = []
 
-
-
-
 apator_files = [file for file in os.listdir() if file.endswith('.txt')]
 
 # otvaranje i čitanje datoteke te pretvaranje podataka u odgovarajući format
@@ -69,7 +66,6 @@ for file in apator_files:
 
 
 
-
 ###################    MADDALENA PARSING   ########################################
 
 data_frames = []                                                         #za pandas
@@ -84,15 +80,12 @@ for file in excel_files:
     data = data[selected_columns]
 
     data['Reading'] = data['Reading'].str.replace(',','.')
-
     data['Value7'] = data['Value7'].str.replace(',','.')
 
 
     #data['Help'] = pd.to_datetime(data['Timestamp'], format='%d.%m.%Y %H:%M:%S')
     Help = pd.to_datetime(data['Timestamp'], format='%d.%m.%Y %H:%M:%S')
-    #data['Datum_m3_help'] = (data['Help'] - pd.offsets.MonthEnd(1)).dt.date
-    Datum_m3_help = (Help - pd.offsets.MonthEnd(1)).dt.date
-    #data['Datum_m3'] = pd.to_datetime(data['Datum_m3_help']).dt.strftime("%d.%m.%Y")   
+    Datum_m3_help = (Help - pd.offsets.MonthEnd(1)).dt.date 
     data['Datum_m3'] = pd.to_datetime(Datum_m3_help).dt.strftime("%Y.%m.%d")            #unosi se u bazu
     data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True)
     data['Timestamp'] = data['Timestamp'].dt.strftime("%Y.%m.%d")
@@ -102,21 +95,20 @@ for file in excel_files:
 ###################    /MADDALENA PARSING   ########################################
 
 
-
 conn = sqlite3.connect('vodomjeri.db')                #uspostava veze s lokalnom bazom podataka (vjerojatno ce se trebati promijeniti ubuduce ukoliko ce baza biti u backendu)
-
 cur = conn.cursor()         #koristi se za SQL naredbe
 
 #iteriraj kroz frameove; dodaj
 for frame in data_frames:
-    #iterirati od 0 do 27 (valjda je to max broj unosa u tablici)
-    for i in range(28):
+    #iterirati dok god frame['Timestamp'][tableRow] nije NaN (NULL?)
+    tableRow = 0
+    while not pd.isnull(frame['Timestamp'][tableRow]):
         
-        datum_m3 = pd.to_datetime(frame['Datum_m3'][i], format="%Y.%m.%d") #kraj prethodnog mjeseca od referente točke
+        datum_m3 = pd.to_datetime(frame['Datum_m3'][tableRow], format="%Y.%m.%d") #kraj prethodnog mjeseca od referente točke
         datum_m3_m3 = (datum_m3 - pd.offsets.MonthEnd(1))                  #kraj pret-prethodnog mjeseca
         datum_m3_m3 = datum_m3_m3.strftime('%Y.%m.%d')                     #pretvorba u string
 
-        cur.execute(f"SELECT Stanje_tren FROM Ocitanje WHERE Broj_rmodul={frame['Module serial'][i]} AND Datum_preth_mj='{datum_m3_m3}'") #filtriraju se stanja iz predzadnjeg ocitanja 
+        cur.execute(f"SELECT Stanje_tren FROM Ocitanje WHERE Broj_rmodul={frame['Module serial'][tableRow]} AND Datum_preth_mj='{datum_m3_m3}'") #filtriraju se stanja iz predzadnjeg ocitanja 
 
         stanje = cur.fetchone()
         if stanje is not None: #moguće je da nema unosa stanja u prethodnom mjesecu u tablici (greška je kod formatiranja datuma u bazi podataka)
@@ -124,21 +116,20 @@ for frame in data_frames:
         else:
             stanje_predzadnje_Ocitanje = 0
 
+        potrosnja_preth_mj = float(float(frame['Value7'][tableRow])*1000 - stanje_predzadnje_Ocitanje) / 1000
 
-        potrosnja_preth_mj = float(float(frame['Value7'][i])*1000 - stanje_predzadnje_Ocitanje) / 1000
+        #print("{:.2f}".format(potrosnja_preth_mj))
 
-        #print("{:.1f}".format(potrosnja_preth_mj))
-
-        ParsedDataMaddalena.append(Maddalena(frame['Module serial'][i], frame['Timestamp'][i], frame['Reading'][i], frame['Value7'][i], frame['Datum_m3'][i], potrosnja_preth_mj))
+        ParsedDataMaddalena.append(Maddalena(frame['Module serial'][tableRow], frame['Timestamp'][tableRow], frame['Reading'][tableRow], frame['Value7'][tableRow], frame['Datum_m3'][tableRow], potrosnja_preth_mj))
+        tableRow = tableRow + 1
 
 
 brojUnosa = 0  #(u bazu podataka)
 
-
 #unos ucitanih podataka Maddalena uredaja u bazu podataka
 for unos in ParsedDataMaddalena:
                                             #INTEGER   #STRING     #INTEGER         #INTEGER         #STRING    #REAL
-    cur.execute(f"INSERT OR REPLACE INTO Ocitanje (Broj_rmodul, Datum_tren, Stanje_tren, Stanje_preth_mj, Datum_preth_mj, Potrosnja_preth_mj) VALUES ({unos.broj_rmodul}, '{unos.datum_tren}', {unos.stanje_tren}, {unos.stanje_preth_mj}, '{unos.datum_m3}', ROUND({unos.potrosnja_preth_mj}, 1))")
+    cur.execute(f"INSERT OR REPLACE INTO Ocitanje (Broj_rmodul, Datum_tren, Stanje_tren, Stanje_preth_mj, Datum_preth_mj, Potrosnja_preth_mj) VALUES ({unos.broj_rmodul}, '{unos.datum_tren}', {unos.stanje_tren}, {unos.stanje_preth_mj}, '{unos.datum_m3}', ROUND({unos.potrosnja_preth_mj}, 2))")
     brojUnosa = brojUnosa + 1
 
 

@@ -1,3 +1,12 @@
+import mysql.connector
+
+mydb = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    password = "root",
+    database = "vodomjer"
+)
+
 file = open("/home/dado/Downloads/izvod.OTP", "r")
 readLines = file.readlines()
 
@@ -68,3 +77,25 @@ for line in readLines:
 
         brojStavke += 1
         redniBrojStavkeIzvoda.append(brojStavke)
+
+#ubacivanje podataka u bazu
+mycursor = mydb.cursor()
+
+sql = "INSERT INTO Uplata (Rbr_Izvadak, Datum_izvrsenja, Iznos, Racun_platitelj, Naziv_platitelj, Adresa_platitelj, Sjediste_platitelj, Poziv_na_broj_primatelj, Opis_placanje) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+for x in range(0, brojStavke):
+
+    val = [
+        redniBrojIzvoda,
+        datumIzvrsenja,
+        iznos,
+        racunPlatitelja,
+        nazivPlatitelja,
+        adresaPlatitelja,
+        sjedistePlatitelja,
+        pozivNaBrojPlatitelja,
+        opisPlacanja
+    ]
+
+    mycursor.executemany(sql, val)
+    mydb.commit()

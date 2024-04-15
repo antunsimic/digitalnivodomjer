@@ -1,11 +1,7 @@
-import mysql.connector
+import sqlite3
 
-mydb = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    password = "root",
-    database = "vodomjer"
-)
+conn = sqlite3.connect('vodomjeri.db')
+cursor = conn.cursor()
 
 file = open("/home/dado/Downloads/izvod.OTP", "r")
 readLines = file.readlines()
@@ -26,7 +22,9 @@ brojStavke = 0
 redniBrojStavkeIzvoda = []
 
 for line in readLines:
+    #slog
     flag = str(line[len(line)-4]) + str(line[len(line)-3]) + str(line[len(line)-2])
+
     if(flag == '903'):
         for x in range(166, 169):
             redniBrojIzvoda += str(line[x])
@@ -79,23 +77,15 @@ for line in readLines:
         redniBrojStavkeIzvoda.append(brojStavke)
 
 #ubacivanje podataka u bazu
-mycursor = mydb.cursor()
-
-sql = "INSERT INTO Uplata (Rbr_Izvadak, Datum_izvrsenja, Iznos, Racun_platitelj, Naziv_platitelj, Adresa_platitelj, Sjediste_platitelj, Poziv_na_broj_primatelj, Opis_placanje) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+query = """INSERT INTO Uplata 
+            (Rbr_izvadak, Datum_izvadak, Datum_izvrsenje, Iznos, Racun_platitelj, Naziv_platitelj, Adresa_platitelj, Sjediste_platitelj, Poziv_na_broj_primatelj, Opis_placanje)
+            VALUES
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
 
 for x in range(0, brojStavke):
+    data_tuple = (redniBrojIzvoda, datum, datumIzvrsenja[x], iznos[x], racunPlatitelja[x], nazivPlatitelja[x], adresaPlatitelja[x], sjedistePlatitelja[x], pozivNaBrojPlatitelja[x], opisPlacanja[x])
 
-    val = [
-        redniBrojIzvoda,
-        datumIzvrsenja,
-        iznos,
-        racunPlatitelja,
-        nazivPlatitelja,
-        adresaPlatitelja,
-        sjedistePlatitelja,
-        pozivNaBrojPlatitelja,
-        opisPlacanja
-    ]
+    cursor.execute(query, data_tuple)
+    conn.commit()
 
-    mycursor.executemany(sql, val)
-    mydb.commit()
+cursor.close()

@@ -4,11 +4,12 @@ import sqlite3
 import datetime as dt
 
 class vodomjer:
-    def __init__(self, broj_vodomjer, broj_modul, ID, ocitanje):
+    def __init__(self, broj_vodomjer, broj_modul, ID, ocitanje, lokacija):
         self.broj_vodomjer = broj_vodomjer
         self.broj_modul = broj_modul
         self.IDKor = ID
         self.ocitanje = ocitanje
+        self.lokacija = lokacija
 
 class stanar:
     def __init__(self, ime, prezime, zgrada, ID, vodomjer):
@@ -79,8 +80,11 @@ rows = c.fetchall()
 for row in rows:
     sql = "SELECT Potrosnja_preth_mj FROM Ocitanje WHERE Broj_rmodul = " + str(row[1])
     c.execute(sql)
-    pot = c.fetchone()
-    Korisnici[row[2]].vodomjer.append(vodomjer(row[0], row[1], row[2], pot[0]))
+    pot = c.fetchall()
+    sql = "SELECT Lokacija FROM Korisnik_oprema WHERE Broj_rmodul = " + str(row[1])
+    c.execute(sql)
+    lok = c.fetchone()
+    Korisnici[row[2]].vodomjer.append(vodomjer(row[0], row[1], row[2], pot[-1][0], lok[0]))
     
 for korisnik in Korisnici:
     for mjera in korisnik.vodomjer:

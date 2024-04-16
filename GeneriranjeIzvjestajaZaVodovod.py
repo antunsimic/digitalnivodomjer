@@ -33,4 +33,5 @@ for zgrada_id, in zgrade:
     for data in cursor.fetchall():
         print(f"{data[0]}\t{data[1]}\t{data[2]}\t{data[3]} {data[4]}\t{data[5]}\t0\t0")
     print("\n")
+
 conn.close()

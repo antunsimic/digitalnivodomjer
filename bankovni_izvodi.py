@@ -13,12 +13,13 @@ iznos = []
 pozivNaBrojPlatitelja = []
 opisPlacanja = []
 
-redniBrojStavkeIzvoda = 0
+brojStavke = 0
+redniBrojStavkeIzvoda = []
 
 for line in readLines:
     flag = str(line[len(line)-4]) + str(line[len(line)-3]) + str(line[len(line)-2])
     if(flag == '903'):
-        for x in range(166, 168):
+        for x in range(166, 169):
             redniBrojIzvoda += str(line[x])
         
         for x in range(172, 180):
@@ -26,43 +27,44 @@ for line in readLines:
 
     if(flag == '905'):
         tmp = ''
-        for x in range(2, 35):
+        for x in range(2, 36):
             tmp += str(line[x])
-        racunPlatitelja.append(tmp)
+        racunPlatitelja.append(tmp.strip())
 
         tmp = ''
-        for x in range(36, 105):
+        for x in range(36, 106):
             tmp += str(line[x])
-        nazivPlatitelja.append(tmp)
+        nazivPlatitelja.append(tmp.strip())
 
         tmp = ''
-        for x in range(106, 140):
+        for x in range(106, 141):
             tmp += str(line[x])
-        adresaPlatitelja.append(tmp)
+        adresaPlatitelja.append(tmp.strip())
         
         tmp = ''
-        for x in range(141, 175):
+        for x in range(141, 176):
             tmp += str(line[x])
-        sjedistePlatitelja.append(tmp)
+        sjedistePlatitelja.append(tmp.strip())
         
         tmp = ''
-        for x in range(184, 191):
+        for x in range(184, 192):
             tmp += str(line[x])
-        datumIzvrsenja.append(tmp)
+        datumIzvrsenja.append(tmp.strip())
 
         tmp = ''
-        for x in range(227, 241):
+        for x in range(227, 242):
             tmp += str(line[x])
-        iznos.append(tmp)
+        iznos.append(tmp.strip())
 
         tmp = ''
-        for x in range(268, 293):
+        for x in range(268, 294):
             tmp += str(line[x])
-        pozivNaBrojPlatitelja.append(tmp)
+        pozivNaBrojPlatitelja.append(tmp.strip())
 
         tmp = ''
-        for x in range(298, 437):
+        for x in range(298, 438):
             tmp += str(line[x])
-        opisPlacanja.append(tmp)
+        opisPlacanja.append(tmp.strip())
 
-        redniBrojStavkeIzvoda += 1
+        brojStavke += 1
+        redniBrojStavkeIzvoda.append(brojStavke)

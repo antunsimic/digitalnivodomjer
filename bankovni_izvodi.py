@@ -1,70 +1,55 @@
-file = open("/home/dado/Downloads/izvod.OTP", "r")
-readLines = file.readlines()
+import sqlite3
+from datetime import datetime
+import os
 
-redniBrojIzvoda = ''
-datum = ''
+directory = r"C:\Users\antun_81f2caf\OneDrive\studij\6._semestar\programsko_inzenjerstvo\projekt\unos_izvoda"  # Update this path as necessary
+conn = sqlite3.connect('vodomjeri.db')
+cursor = conn.cursor()
 
-racunPlatitelja = []
-nazivPlatitelja = []
-adresaPlatitelja = []
-sjedistePlatitelja = []
-datumIzvrsenja = []
-iznos = []
-pozivNaBrojPlatitelja = []
-opisPlacanja = []
+def process_file(file_path):
+    with open(file_path, "r") as file:
+        readLines = file.readlines()
 
-brojStavke = 0
-redniBrojStavkeIzvoda = []
+    datum = ''
+    brojStavke = 0
 
-for line in readLines:
-    flag = str(line[len(line)-4]) + str(line[len(line)-3]) + str(line[len(line)-2])
-    if(flag == '903'):
-        for x in range(166, 169):
-            redniBrojIzvoda += str(line[x])
-        
-        for x in range(172, 180):
-            datum += str(line[x])
+    for line in readLines:
+        flag = line[-4:].strip()  # Adjusted to strip any accidental whitespace
 
-    if(flag == '905'):
-        tmp = ''
-        for x in range(2, 36):
-            tmp += str(line[x])
-        racunPlatitelja.append(tmp.strip())
+        if flag == '903':
+            redniBrojIzvoda = line[166:169].strip()
+            datum = line[172:180].strip()
 
-        tmp = ''
-        for x in range(36, 106):
-            tmp += str(line[x])
-        nazivPlatitelja.append(tmp.strip())
+        if flag == '905' and line[0:2].strip() == "20":  # Checks oztra right in the condition
+            datum_izvrsenje = datetime.strptime(line[184:192].strip(), "%Y%m%d").strftime("%Y.%m.%d")
+            data_tuple = (
+                redniBrojIzvoda,
+                brojStavke + 1,
+                datetime.strptime(datum, "%Y%m%d").strftime("%Y.%m.%d"),
+                datum_izvrsenje,
+                float(line[227:242].strip()) / 100,
+                line[2:36].strip(),
+                line[36:106].strip(),
+                line[106:141].strip(),
+                line[141:176].strip(),
+                line[268:294].strip(),
+                line[298:438].strip()
+            )
 
-        tmp = ''
-        for x in range(106, 141):
-            tmp += str(line[x])
-        adresaPlatitelja.append(tmp.strip())
-        
-        tmp = ''
-        for x in range(141, 176):
-            tmp += str(line[x])
-        sjedistePlatitelja.append(tmp.strip())
-        
-        tmp = ''
-        for x in range(184, 192):
-            tmp += str(line[x])
-        datumIzvrsenja.append(tmp.strip())
+            # Check for existing entry by redniBrojIzvoda, redniBrojStavkeIzvoda and Datum_izvrsenje
+            cursor.execute("SELECT COUNT(*) FROM Uplata WHERE Rbr_izvadak=? AND Rbr_stv_izvadak=? AND Datum_izvrsenje=?", (redniBrojIzvoda, brojStavke + 1, datum_izvrsenje))
+            if cursor.fetchone()[0] == 0:
+                cursor.execute('INSERT INTO Uplata (Rbr_izvadak, Rbr_stv_izvadak, Datum_izvadak, Datum_izvrsenje, Iznos, Racun_platitelj, Naziv_platitelj, Adresa_platitelj, Sjediste_platitelj, Poziv_na_broj_primatelj, Opis_placanje) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', data_tuple)
+                conn.commit()
+                brojStavke += 1
 
-        tmp = ''
-        for x in range(227, 242):
-            tmp += str(line[x])
-        iznos.append(tmp.strip())
+    print(f"Processed {brojStavke} entries from {file_path}")
 
-        tmp = ''
-        for x in range(268, 294):
-            tmp += str(line[x])
-        pozivNaBrojPlatitelja.append(tmp.strip())
+# List all .OTP files in the specified directory and process them
+for filename in os.listdir(directory):
+    if filename.endswith(".OTP"):
+        file_path = os.path.join(directory, filename)
+        process_file(file_path)
 
-        tmp = ''
-        for x in range(298, 438):
-            tmp += str(line[x])
-        opisPlacanja.append(tmp.strip())
-
-        brojStavke += 1
-        redniBrojStavkeIzvoda.append(brojStavke)
+conn.close()
+print("Completed processing all files.")

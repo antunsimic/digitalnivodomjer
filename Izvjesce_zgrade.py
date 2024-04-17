@@ -42,7 +42,7 @@ sql = "SELECT MAX(Datum_preth_mj) FROM Ocitanje"
 c.execute(sql)
 datumT = c.fetchone()
 datum = (datumT[0].split())[0]
-datumKraja = dt.datetime.strptime(datum, '%m/%d/%Y')
+datumKraja = dt.datetime.strptime(datum, '%Y.%m.%d')
 datumPocetka = datumKraja - dt.timedelta(days = (datumKraja.day-1))
 
 # Čitanje podataka za zgrade-------------------------------------------------------------------------------

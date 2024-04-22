@@ -2,8 +2,11 @@ import sqlite3
 from datetime import datetime
 import os
 
-directory = r"C:\Users\antun_81f2caf\OneDrive\studij\6._semestar\programsko_inzenjerstvo\projekt\unos_izvoda"  # Update this path as necessary
-conn = sqlite3.connect('vodomjeri.db')
+current_dir = os.getcwd()
+next_dir = "datoteke"
+directory = os.path.join(current_dir, next_dir)
+#directory = r"C:\Users\antun_81f2caf\OneDrive\studij\6._semestar\programsko_inzenjerstvo\projekt\unos_izvoda"  # Update this path as necessary
+conn = sqlite3.connect('vodomjeri.db', check_same_thread=False)
 cursor = conn.cursor()
 
 def process_file(file_path):
@@ -43,13 +46,17 @@ def process_file(file_path):
                 conn.commit()
                 brojStavke += 1
 
-    print(f"Processed {brojStavke} entries from {file_path}")
+    #print(f"Processed {brojStavke} entries from {file_path}")
 
 # List all .OTP files in the specified directory and process them
-for filename in os.listdir(directory):
-    if filename.endswith(".OTP"):
-        file_path = os.path.join(directory, filename)
-        process_file(file_path)
+def Bankovni_func():
+    for filename in os.listdir(directory):
+        if filename.endswith(".OTP"):
+            file_path = os.path.join(directory, filename)
+            process_file(file_path)
 
-conn.close()
-print("Completed processing all files.")
+    conn.close()
+    #print("Completed processing all files.")
+    return "Completed processing all files."
+
+Bankovni_func()

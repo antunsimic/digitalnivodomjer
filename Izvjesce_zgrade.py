@@ -29,65 +29,70 @@ class Zgrada:
         self.stanari = stanari
         self.kraj = "U slavonskom brodu, " + dt.datetime.now().date().strftime("%d.%m.%y")
         
+def Ivjesce_zgrade_func():
+    Korisnici = []
+    Izvjesca = []
 
-Korisnici = []
-Izvjesca = []
+    conn = sqlite3.connect('vodomjeri.db')
 
-conn = sqlite3.connect('vodomjeri.db')
+    c = conn.cursor()
 
-c = conn.cursor()
-
-# Čitanje podataka za zgrade-------------------------------------------------------------------------------
-sql = "SELECT MAX(Datum_preth_mj) FROM Ocitanje"
-c.execute(sql)
-datumT = c.fetchone()
-datum = (datumT[0].split())[0]
-datumKraja = dt.datetime.strptime(datum, '%Y.%m.%d')
-datumPocetka = datumKraja - dt.timedelta(days = (datumKraja.day-1))
-
-# Čitanje podataka za zgrade-------------------------------------------------------------------------------
-
-sql = "SELECT * FROM 'Zgrada'"
-c.execute(sql)
-rows = c.fetchall()
-for row in rows:
-    Izvjesca.append(Zgrada(row[1], row[2], int(row[3]), datumPocetka.strftime("%d.%m.%Y"), datumKraja.strftime("%d.%m.%Y"), []))
-    
-    
-    
-
-# Dohvaćanje broja stanara po ID---------------------------------------------------------------------------------
-
-sql = "SELECT MAX(ID_korisnik) FROM Korisnik"
-c.execute(sql)
-maximum = c.fetchone()
-
-# Čitanje podataka za stanare----------------------------------------------------
-sql = "SELECT * FROM 'Korisnik'"
-c.execute(sql)
-rows = c.fetchall()
-Korisnici = [stanar("null", "null", 0, 0, [])]*(maximum[0]+1)
-for row in rows:
-    Korisnici[row[0]] = (stanar(row[4], row[3], row[2], row[0], []))
-
-
-
-
-# Čitanje podataka vodomjera--------------------------------------------------------------------------------------
-sql = "SELECT * FROM 'Korisnik_oprema'"
-c.execute(sql)
-rows = c.fetchall()
-for row in rows:
-    sql = "SELECT Potrosnja_preth_mj FROM Ocitanje WHERE Broj_rmodul = " + str(row[1])
+    # Čitanje podataka za zgrade-------------------------------------------------------------------------------
+    sql = "SELECT MAX(Datum_preth_mj) FROM Ocitanje"
     c.execute(sql)
-    pot = c.fetchall()
-    sql = "SELECT Lokacija FROM Korisnik_oprema WHERE Broj_rmodul = " + str(row[1])
-    c.execute(sql)
-    lok = c.fetchone()
-    Korisnici[row[2]].vodomjer.append(vodomjer(row[0], row[1], row[2], pot[-1][0], lok[0]))
-    
-for korisnik in Korisnici:
-    for mjera in korisnik.vodomjer:
-        Izvjesca[korisnik.zgrada-1].stanari.append(korisnik)
+    datumT = c.fetchone()
+    datum = (datumT[0].split())[0]
+    datumKraja = dt.datetime.strptime(datum, '%Y.%m.%d')
+    datumPocetka = datumKraja - dt.timedelta(days = (datumKraja.day-1))
 
-conn.close()
+    # Čitanje podataka za zgrade-------------------------------------------------------------------------------
+
+    sql = "SELECT * FROM 'Zgrada'"
+    c.execute(sql)
+    rows = c.fetchall()
+    for row in rows:
+        Izvjesca.append(Zgrada(row[1], row[2], int(row[3]), datumPocetka.strftime("%d.%m.%Y"), datumKraja.strftime("%d.%m.%Y"), []))
+        
+        
+        
+
+    # Dohvaćanje broja stanara po ID---------------------------------------------------------------------------------
+
+    sql = "SELECT MAX(ID_korisnik) FROM Korisnik"
+    c.execute(sql)
+    maximum = c.fetchone()
+
+    # Čitanje podataka za stanare----------------------------------------------------
+    sql = "SELECT * FROM 'Korisnik'"
+    c.execute(sql)
+    rows = c.fetchall()
+    Korisnici = [stanar("null", "null", 0, 0, [])]*(maximum[0]+1)
+    for row in rows:
+        Korisnici[row[0]] = (stanar(row[4], row[3], row[2], row[0], []))
+
+
+
+
+    # Čitanje podataka vodomjera--------------------------------------------------------------------------------------
+    sql = "SELECT * FROM 'Korisnik_oprema'"
+    c.execute(sql)
+    rows = c.fetchall()
+    for row in rows:
+        sql = "SELECT Potrosnja_preth_mj FROM Ocitanje WHERE Broj_rmodul = " + str(row[1])
+        c.execute(sql)
+        pot = c.fetchall()
+        sql = "SELECT Lokacija FROM Korisnik_oprema WHERE Broj_rmodul = " + str(row[1])
+        c.execute(sql)
+        lok = c.fetchone()
+        Korisnici[row[2]].vodomjer.append(vodomjer(row[0], row[1], row[2], pot[-1][0], lok[0]))
+        
+    for korisnik in Korisnici:
+        for mjera in korisnik.vodomjer:
+            Izvjesca[korisnik.zgrada-1].stanari.append(korisnik)
+
+
+
+    conn.close()
+    return Izvjesca #ne znam sto se treba filtrirati iz cega ni kako
+
+Ivjesce_zgrade_func()

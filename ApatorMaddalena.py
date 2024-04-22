@@ -33,116 +33,122 @@ class Maddalena:
         self.datum_m3 = datum_m3
         self.potrosnja_preth_mj = potrosnja_preth_mj
 
+current_dir = os.getcwd()
+next_dir = "datoteke"
+directory = os.path.join(current_dir, next_dir)
+datoteke = os.listdir(directory)
+def Vodomjeri_func():
+    ###################     APATOR PARSING  ########################################
+    # svi podatci datoteke spremljeni u listu
+    ParsedDataApator = []
 
-###################     APATOR PARSING  ########################################
-# svi podatci datoteke spremljeni u listu
-ParsedDataApator = []
+    apator_files = [file for file in datoteke if file.endswith('.txt')]
 
-apator_files = [file for file in os.listdir() if file.endswith('.txt')]
-
-# otvaranje i čitanje datoteke te pretvaranje podataka u odgovarajući format
-for file in apator_files:
-    f = open(file, "r")
-    data = f.readlines()
-    for l in data:
-        p = l.split()
-        if len(p) > 1:
-            ParsedDataApator.append(RFU30(datetime.datetime.strptime(p[0], '%d.%m.%Y'),
-                                int(p[1]),
-                                p[2],
-                                p[3],
-                                p[4],
-                                p[5],
-                                int(p[6]),
-                                int(p[7]),
-                                int(p[8]),
-                                p[9], int(p[10])))
-
-
-#uzimaju se A,B,C,G,datum_m3 i stavljaju u bazu podataka:
-#prolazi se kroz sve (3) .txt datoteke, u tablicu Ocitanje se unose podaci
-
-###################    /APATOR PARSING     ########################################
-
+    # otvaranje i čitanje datoteke te pretvaranje podataka u odgovarajući format
+    for file in apator_files:
+        file_path = os.path.join(directory, file)
+        f = open(file_path, "r")
+        data = f.readlines()
+        for l in data:
+            p = l.split()
+            if len(p) > 1:
+                ParsedDataApator.append(RFU30(datetime.datetime.strptime(p[0], '%d.%m.%Y'),
+                                    int(p[1]),
+                                    p[2],
+                                    p[3],
+                                    p[4],
+                                    p[5],
+                                    int(p[6]),
+                                    int(p[7]),
+                                    int(p[8]),
+                                    p[9], int(p[10])))
 
 
-###################    MADDALENA PARSING   ########################################
+    #uzimaju se A,B,C,G,datum_m3 i stavljaju u bazu podataka:
+    #prolazi se kroz sve (3) .txt datoteke, u tablicu Ocitanje se unose podaci
 
-data_frames = []                                                         #za pandas
-excel_files = [file for file in os.listdir() if file.endswith(('.xlsx', '.xls'))]  # sve excel datoteke u trenutnom direktoriju
-ParsedDataMaddalena = []                                                 #za laksu iteraciju kroz podatke te spremanje u bazu
+    ###################    /APATOR PARSING     ########################################
 
+    ###################    MADDALENA PARSING   ########################################
 
-# iteracija kroz sve excel datoteke i zapisivanje podataka u liste
-for file in excel_files:
-    data = pd.read_excel(file)
-    selected_columns = ['Module serial', 'Timestamp', 'Reading', 'Value7'] #float mora imati tocku, a ne zarez (Reading, Value7)
-    data = data[selected_columns]
-
-    data['Reading'] = data['Reading'].str.replace(',','.')
-    data['Value7'] = data['Value7'].str.replace(',','.')
+    data_frames = []                                                         #za pandas
+    excel_files = [file for file in datoteke if file.endswith(('.xlsx', '.xls'))]  # sve excel datoteke u trenutnom direktoriju
+    ParsedDataMaddalena = []                                                 #za laksu iteraciju kroz podatke te spremanje u bazu
 
 
-    #data['Help'] = pd.to_datetime(data['Timestamp'], format='%d.%m.%Y %H:%M:%S')
-    Help = pd.to_datetime(data['Timestamp'], format='%d.%m.%Y %H:%M:%S')
-    Datum_m3_help = (Help - pd.offsets.MonthEnd(1)).dt.date 
-    data['Datum_m3'] = pd.to_datetime(Datum_m3_help).dt.strftime("%Y.%m.%d")            #unosi se u bazu
-    data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True)
-    data['Timestamp'] = data['Timestamp'].dt.strftime("%Y.%m.%d")
-    data_frames.append(data)
-#1 data_frames element => 1 excel datoteka
+    # iteracija kroz sve excel datoteke i zapisivanje podataka u liste
+    for file in excel_files:
+        file_path = os.path.join(directory, file)
+        data = pd.read_excel(file_path)
+        selected_columns = ['Module serial', 'Timestamp', 'Reading', 'Value7'] #float mora imati tocku, a ne zarez (Reading, Value7)
+        data = data[selected_columns]
 
-###################    /MADDALENA PARSING   ########################################
-
-
-conn = sqlite3.connect('vodomjeri.db')                #uspostava veze s lokalnom bazom podataka (vjerojatno ce se trebati promijeniti ubuduce ukoliko ce baza biti u backendu)
-cur = conn.cursor()         #koristi se za SQL naredbe
-
-#iteriraj kroz frameove; dodaj
-for frame in data_frames:
-    #iterirati dok god frame['Timestamp'][tableRow] nije NaN (NULL?)
-    tableRow = 0
-    while not pd.isnull(frame['Timestamp'][tableRow]):
-        
-        datum_m3 = pd.to_datetime(frame['Datum_m3'][tableRow], format="%Y.%m.%d") #kraj prethodnog mjeseca od referente točke
-        datum_m3_m3 = (datum_m3 - pd.offsets.MonthEnd(1))                  #kraj pret-prethodnog mjeseca
-        datum_m3_m3 = datum_m3_m3.strftime('%Y.%m.%d')                     #pretvorba u string
-
-        cur.execute(f"SELECT Stanje_tren FROM Ocitanje WHERE Broj_rmodul={frame['Module serial'][tableRow]} AND Datum_preth_mj='{datum_m3_m3}'") #filtriraju se stanja iz predzadnjeg ocitanja 
-
-        stanje = cur.fetchone()
-        if stanje is not None: #moguće je da nema unosa stanja u prethodnom mjesecu u tablici (greška je kod formatiranja datuma u bazi podataka)
-            stanje_predzadnje_Ocitanje = stanje[0]
-        else:
-            stanje_predzadnje_Ocitanje = 0
-
-        potrosnja_preth_mj = float(float(frame['Value7'][tableRow])*1000 - stanje_predzadnje_Ocitanje) / 1000
-        if potrosnja_preth_mj>90000 or potrosnja_preth_mj<0:
-            potrosnja_preth_mj = 0
-        #print("{:.2f}".format(potrosnja_preth_mj))
-
-        ParsedDataMaddalena.append(Maddalena(frame['Module serial'][tableRow], frame['Timestamp'][tableRow], frame['Reading'][tableRow], frame['Value7'][tableRow], frame['Datum_m3'][tableRow], potrosnja_preth_mj))
-        tableRow = tableRow + 1
+        data['Reading'] = data['Reading'].str.replace(',','.')
+        data['Value7'] = data['Value7'].str.replace(',','.')
 
 
-brojUnosa = 0  #(u bazu podataka)
+        #data['Help'] = pd.to_datetime(data['Timestamp'], format='%d.%m.%Y %H:%M:%S')
+        Help = pd.to_datetime(data['Timestamp'], format='%d.%m.%Y %H:%M:%S')
+        Datum_m3_help = (Help - pd.offsets.MonthEnd(1)).dt.date 
+        data['Datum_m3'] = pd.to_datetime(Datum_m3_help).dt.strftime("%Y.%m.%d")            #unosi se u bazu
+        data['Timestamp'] = pd.to_datetime(data['Timestamp'], dayfirst=True)
+        data['Timestamp'] = data['Timestamp'].dt.strftime("%Y.%m.%d")
+        data_frames.append(data)
+    #1 data_frames element => 1 excel datoteka
 
-#unos ucitanih podataka Maddalena uredaja u bazu podataka
-for unos in ParsedDataMaddalena:
-                                            #INTEGER   #STRING     #INTEGER         #INTEGER         #STRING    #REAL
-    cur.execute(f"INSERT OR REPLACE INTO Ocitanje (Broj_rmodul, Datum_tren, Stanje_tren, Stanje_preth_mj, Datum_preth_mj, Potrosnja_preth_mj) VALUES ({unos.broj_rmodul}, '{unos.datum_tren}', {unos.stanje_tren}, {unos.stanje_preth_mj}, '{unos.datum_m3}', ROUND({unos.potrosnja_preth_mj}, 2))")
-    brojUnosa = brojUnosa + 1
+    ###################    /MADDALENA PARSING   ########################################
+    conn = sqlite3.connect('vodomjeri.db')                #uspostava veze s lokalnom bazom podataka (vjerojatno ce se trebati promijeniti ubuduce ukoliko ce baza biti u backendu)
+    cur = conn.cursor()         #koristi se za SQL naredbe
+
+    #iteriraj kroz frameove; dodaj
+    for frame in data_frames:
+        #iterirati dok god frame['Timestamp'][tableRow] nije NaN (NULL?)
+        tableRow = 0
+        while not pd.isnull(frame['Timestamp'][tableRow]):
+            
+            datum_m3 = pd.to_datetime(frame['Datum_m3'][tableRow], format="%Y.%m.%d") #kraj prethodnog mjeseca od referente točke
+            datum_m3_m3 = (datum_m3 - pd.offsets.MonthEnd(1))                  #kraj pret-prethodnog mjeseca
+            datum_m3_m3 = datum_m3_m3.strftime('%Y.%m.%d')                     #pretvorba u string
+
+            cur.execute(f"SELECT Stanje_tren FROM Ocitanje WHERE Broj_rmodul={frame['Module serial'][tableRow]} AND Datum_preth_mj='{datum_m3_m3}'") #filtriraju se stanja iz predzadnjeg ocitanja 
+
+            stanje = cur.fetchone()
+            if stanje is not None: #moguće je da nema unosa stanja u prethodnom mjesecu u tablici (greška je kod formatiranja datuma u bazi podataka)
+                stanje_predzadnje_Ocitanje = stanje[0]
+            else:
+                stanje_predzadnje_Ocitanje = 0
+
+            potrosnja_preth_mj = float(float(frame['Value7'][tableRow])*1000 - stanje_predzadnje_Ocitanje) / 1000
+            if potrosnja_preth_mj>90000 or potrosnja_preth_mj<0:
+                potrosnja_preth_mj = 0
+            #print("{:.2f}".format(potrosnja_preth_mj))
+
+            ParsedDataMaddalena.append(Maddalena(frame['Module serial'][tableRow], frame['Timestamp'][tableRow], frame['Reading'][tableRow], frame['Value7'][tableRow], frame['Datum_m3'][tableRow], potrosnja_preth_mj))
+            tableRow = tableRow + 1
 
 
-#unos ucitanih podataka Apator uredaja u bazu podataka
-for unos in ParsedDataApator:
-                                          #TEXT       INTEGER         REAL              INTEGER         TEXT         INTEGER[prazno]
-                            #Ocitanje: Datum_tren,   Broj_rmodul, Potrosnja_preth_mj, Stanje_tren, Datum_preth_mj, (Stanje_preth_mj)
-    cur.execute(f"INSERT OR REPLACE INTO Ocitanje (Datum_tren, Broj_rmodul, Potrosnja_preth_mj, Stanje_tren, Datum_preth_mj) VALUES ('{unos.A}', {unos.B}, {float(unos.C.replace(',', '.'))}, {unos.G}, '{unos.datum_m3}')")
-    #umjesto pretvaranja u float ovdje, to je moguce napraviti pri dodavanju u listu, makar nema veze
-    brojUnosa = brojUnosa + 1
+    brojUnosa = 0  #(u bazu podataka)
 
-print(f"Napravljeno je {brojUnosa} unosa u bazu podataka")
+    #unos ucitanih podataka Maddalena uredaja u bazu podataka
+    for unos in ParsedDataMaddalena:
+                                                #INTEGER   #STRING     #INTEGER         #INTEGER         #STRING    #REAL
+        cur.execute(f"INSERT OR REPLACE INTO Ocitanje (Broj_rmodul, Datum_tren, Stanje_tren, Stanje_preth_mj, Datum_preth_mj, Potrosnja_preth_mj) VALUES ({unos.broj_rmodul}, '{unos.datum_tren}', {unos.stanje_tren}, {unos.stanje_preth_mj}, '{unos.datum_m3}', ROUND({unos.potrosnja_preth_mj}, 2))")
+        brojUnosa = brojUnosa + 1
 
-conn.commit()
-conn.close() #zatvaranje veze s bazom podataka
+
+    #unos ucitanih podataka Apator uredaja u bazu podataka
+    for unos in ParsedDataApator:
+                                            #TEXT       INTEGER         REAL              INTEGER         TEXT         INTEGER[prazno]
+                                #Ocitanje: Datum_tren,   Broj_rmodul, Potrosnja_preth_mj, Stanje_tren, Datum_preth_mj, (Stanje_preth_mj)
+        cur.execute(f"INSERT OR REPLACE INTO Ocitanje (Datum_tren, Broj_rmodul, Potrosnja_preth_mj, Stanje_tren, Datum_preth_mj) VALUES ('{unos.A}', {unos.B}, {float(unos.C.replace(',', '.'))}, {unos.G}, '{unos.datum_m3}')")
+        #umjesto pretvaranja u float ovdje, to je moguce napraviti pri dodavanju u listu, makar nema veze
+        brojUnosa = brojUnosa + 1
+
+    #print(f"Napravljeno je {brojUnosa} unosa u bazu podataka")
+
+    conn.commit()
+    conn.close() #zatvaranje veze s bazom podataka
+    
+    return f"Napravljeno je {brojUnosa} unosa u bazu podataka"
+
+Vodomjeri_func()

@@ -13,11 +13,12 @@ def Vodovod_izvjestaj_func():
     #dohvaćanje najnovijeg Razdoblje_obracun
     cursor.execute('SELECT MAX(Razdoblje_obracun) FROM Obracun')
     najnovije_razdoblje = cursor.fetchone()[0]
+    #print(najnovije_razdoblje)
 
     #dohvaćanje svih ID_zgrada
     cursor.execute('SELECT DISTINCT ID_zgrada FROM Korisnik')
     zgrade = cursor.fetchall()
-
+    print(zgrade)
 
     for zgrada_id, in zgrade:
         #print(f"Izvještaj za zgradu s ID-om {zgrada_id}:")
@@ -31,6 +32,11 @@ def Vodovod_izvjestaj_func():
             WHERE Korisnik.ID_zgrada = ?
             AND Obracun.Razdoblje_obracun = ?;
         ''', (zgrada_id, najnovije_razdoblje))
+        
+        i = 0
+        for data in cursor.fetchall():
+            i += 1
+            print(data, i)
 
         #ispis podataka o korisnicima
         #for data in cursor.fetchall():

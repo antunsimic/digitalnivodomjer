@@ -1,0 +1,1 @@
+APP_PASSWORD = 'sotb sfva lpms adqr'

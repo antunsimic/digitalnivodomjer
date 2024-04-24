@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import xlsxwriter
 
 if len(sys.argv) != 1:
     print("Koristite: python program.py")
@@ -8,30 +9,77 @@ if len(sys.argv) != 1:
 conn = sqlite3.connect('vodomjeri.db')
 cursor = conn.cursor()
 
-#dohvaćanje najnovijeg Razdoblje_obracun
-cursor.execute('SELECT MAX(Razdoblje_obracun) FROM Obracun')
-najnovije_razdoblje = cursor.fetchone()[0]
-
 #dohvaćanje svih ID_zgrada
 cursor.execute('SELECT DISTINCT ID_zgrada FROM Korisnik')
 zgrade = cursor.fetchall()
 
 for zgrada_id, in zgrade:
-    print(f"Izvještaj za zgradu s ID-om {zgrada_id}:")
-    print("ID\tŠifra korisnika\tŠifra MM\tIme i prezime\tPotrošnja HV\tPotrošnja SV\tRazlika")
+    cursor.execute('SELECT Ulica_kbr FROM Zgrada WHERE ID_zgrada = ?', (zgrada_id,))
+    adresa = cursor.fetchone()[0]
+    adresa = adresa.replace('/', '_')
+    adresa_split = adresa.split()
+    adresa_formatted = '_'.join([r[:6] for r in adresa_split])
+
+    #dohvaćanje najnovijeg Razdoblja_obracuna
+    cursor.execute('SELECT MAX(Razdoblje_obracun) FROM Obracun')
+    najnovije_razdoblje = cursor.fetchone()[0]
+    najnovije_razdoblje = str(najnovije_razdoblje)
+    MM = najnovije_razdoblje[-2:]  
+    YYYY = najnovije_razdoblje[:4] 
+
+    #kreiranje excel datoteke
+    workbook = xlsxwriter.Workbook(f'{adresa_formatted}_{MM}_{YYYY}.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    #postavljanje širine stupaca
+    column_widths = [10, 15, 10, 20, 15, 15, 15]
+    for col, width in enumerate(column_widths):
+        worksheet.set_column(col, col, width)
+
+    #naslovi stupaca
+    headers = ["ID", "Šifra korisnika", "Šifra MM", "Ime i prezime", "Potrošnja HV", "Potrošnja SV", "Razlika"]
+    for col, header in enumerate(headers):
+        worksheet.write(0, col, header)
+
+    #postavljanje okvira za tablicu
+    cell_format = workbook.add_format({'border': 1})
+    for row in range(len(headers) + 1):  
+        worksheet.write(row, 0, '', cell_format)
+        worksheet.write(row, len(headers) - 1, '', cell_format)
+    for col in range(len(headers)):
+        worksheet.write(0, col, headers[col], cell_format)  
+        worksheet.write(len(headers), col, '', cell_format)
 
     #dohvaćanje podataka o korisnicima za trenutnu zgradu i najnovije razdoblje obračuna
     cursor.execute('''
-        SELECT Korisnik.Vod_ID, Korisnik.Vod_sif_kor, Korisnik.Vod_mm, Korisnik.Ime, Korisnik.Prezime, Obracun.Potrosnja_hv
+        SELECT Korisnik.Vod_ID, Korisnik.Vod_sif_kor, Korisnik.Vod_mm, Korisnik.Ime, Korisnik.Prezime, 
+               Obracun.Potrosnja_hv
         FROM Korisnik
         JOIN Obracun ON Korisnik.ID_korisnik = Obracun.ID_korisnik
         WHERE Korisnik.ID_zgrada = ?
         AND Obracun.Razdoblje_obracun = ?;
     ''', (zgrada_id, najnovije_razdoblje))
 
-    #ispis podataka o korisnicima
+    #upisivanje podataka u Excel datoteku
+    row = 1  
+    col = 0
     for data in cursor.fetchall():
-        print(f"{data[0]}\t{data[1]}\t{data[2]}\t{data[3]} {data[4]}\t{data[5]}\t0\t0")
-    print("\n")
+        #Vod_ID
+        worksheet.write(row, col, data[0], cell_format) 
+        #Vod_sif_kor 
+        worksheet.write(row, col + 1, data[1], cell_format)  
+        #Vod_mm
+        worksheet.write(row, col + 2, data[2], cell_format)  
+        #Ime i prezime
+        worksheet.write(row, col + 3, f"{data[3]} {data[4]}", cell_format)
+        #Potrošnja HV
+        worksheet.write(row, col + 4, data[5], cell_format) 
+        #Potrošnja SV
+        worksheet.write(row, col + 5, 0, cell_format)  
+        #Razlika 
+        worksheet.write(row, col + 6, 0, cell_format)  
+        row += 1
+
+    workbook.close()
 
 conn.close()

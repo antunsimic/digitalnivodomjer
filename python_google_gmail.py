@@ -6,6 +6,7 @@ import smtplib
 from envs import SENDER_EMAIL, APP_PASSWORD, SMTP_SERVER, SMTP_PORT
 #from email.mime.text import MIMEText
 from email import encoders
+from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 
@@ -61,6 +62,7 @@ for row in rows:
             msg['Subject'] = subject
             msg['From'] = SENDER_EMAIL
             msg['To'] = address
+            msg.attach(MIMEText(body, 'plain'))
             msg.attach(part_pdf)
             msg.attach(part_xlsx)
             try:

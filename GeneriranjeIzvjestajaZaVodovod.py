@@ -2,27 +2,26 @@ import sqlite3
 import sys
 
 def Vodovod_izvjestaj_func():
-
     if len(sys.argv) != 1:
         print("Koristite: python program.py")
         sys.exit(1)
 
+
+
     conn = sqlite3.connect('vodomjeri.db')
     cursor = conn.cursor()
-
+    ret = []
     #dohvaćanje najnovijeg Razdoblje_obracun
     cursor.execute('SELECT MAX(Razdoblje_obracun) FROM Obracun')
     najnovije_razdoblje = cursor.fetchone()[0]
-    #print(najnovije_razdoblje)
 
     #dohvaćanje svih ID_zgrada
     cursor.execute('SELECT DISTINCT ID_zgrada FROM Korisnik')
     zgrade = cursor.fetchall()
-    print(zgrade)
 
     for zgrada_id, in zgrade:
-        #print(f"Izvještaj za zgradu s ID-om {zgrada_id}:")
-        #print("ID\tŠifra korisnika\tŠifra MM\tIme i prezime\tPotrošnja HV\tPotrošnja SV\tRazlika")
+        print(f"Izvještaj za zgradu s ID-om {zgrada_id}:")
+        print("ID\tŠifra korisnika\tŠifra MM\tIme i prezime\tPotrošnja HV\tPotrošnja SV\tRazlika")
 
         #dohvaćanje podataka o korisnicima za trenutnu zgradu i najnovije razdoblje obračuna
         cursor.execute('''
@@ -32,19 +31,15 @@ def Vodovod_izvjestaj_func():
             WHERE Korisnik.ID_zgrada = ?
             AND Obracun.Razdoblje_obracun = ?;
         ''', (zgrada_id, najnovije_razdoblje))
-        
-        i = 0
-        for data in cursor.fetchall():
-            i += 1
-            print(data, i)
 
+        podaci = cursor.fetchall()
         #ispis podataka o korisnicima
-        #for data in cursor.fetchall():
-        #    print(f"{data[0]}\t{data[1]}\t{data[2]}\t{data[3]} {data[4]}\t{data[5]}\t0\t0")
-        #print("\n")
-
-        return cursor.fetchall()
+        for data in podaci:
+            print(f"{data[0]}\t{data[1]}\t{data[2]}\t{data[3]} {data[4]}\t{data[5]}\t0\t0")
+        print("\n")
+        ret.append(podaci)
 
     conn.close()
+    return ret
 
 Vodovod_izvjestaj_func()

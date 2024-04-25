@@ -7,6 +7,7 @@ def Vodovod_izvjestaj_func():
         print("Koristite: python program.py")
         sys.exit(1)
 
+    ret = []
     engine = db.create_engine('sqlite:///vodomjeri.db')
     conn = engine.connect()
     metadata = db.MetaData()
@@ -30,35 +31,24 @@ def Vodovod_izvjestaj_func():
     zgrade = ResultProxy.fetchall()
 
     for zgrada_id, in zgrade:
-        #print(f"Izvještaj za zgradu s ID-om {zgrada_id}:")
-        #print("ID\tŠifra korisnika\tŠifra MM\tIme i prezime\tPotrošnja HV\tPotrošnja SV\tRazlika")
+        print(f"Izvještaj za zgradu s ID-om {zgrada_id}:")
+        print("ID\tŠifra korisnika\tŠifra MM\tIme i prezime\tPotrošnja HV\tPotrošnja SV\tRazlika")
 
+        
         #dohvaćanje podataka o korisnicima za trenutnu zgradu i najnovije razdoblje obračuna
         #cursor.execute('''
-        #    SELECT Korisnik.Vod_ID, Korisnik.Vod_sif_kor, Korisnik.Vod_mm, Korisnik.Ime, Korisnik.Prezime, Obracun.Potrosnja_hv
-        #    FROM Korisnik
-        #    JOIN Obracun ON Korisnik.ID_korisnik = Obracun.ID_korisnik
-        #    WHERE Korisnik.ID_zgrada = ?
-        #    AND Obracun.Razdoblje_obracun = ?;
-        #''', (zgrada_id, najnovije_razdoblje))
-        i = 0
+
         #query = db.Select(korisnik.columns.Vod_ID, korisnik.columns.Vod_sif_kor, korisnik.columns.Vod_mm, korisnik.columns.Ime, korisnik.columns.Prezime ,obracun.columns.Potrosnja_hv).join(korisnik, korisnik.columns.ID_korisnik == obracun.columns.ID_korisnik).where(db.and_(korisnik.columns.ID_zgrada==zgrada_id, obracun.columns.Razdoblje_obracun==najnovije_razdoblje))
+        query = db.text(f"SELECT Korisnik.Vod_ID, Korisnik.Vod_sif_kor, Korisnik.Vod_mm, Korisnik.Ime, Korisnik.Prezime, Obracun.Potrosnja_hv FROM Korisnik JOIN Obracun ON Korisnik.ID_korisnik = Obracun.ID_korisnik WHERE Korisnik.ID_zgrada = {zgrada_id} AND Obracun.Razdoblje_obracun = {najnovije_razdoblje}")
+        
         ResultProxy = conn.execute(query)
         
-        for data in ResultProxy.fetchall():
-            i += 1
-            print(data, i)
-        
-
-
-
         #ispis podataka o korisnicima
-        #for data in cursor.fetchall():
-        #    print(f"{data[0]}\t{data[1]}\t{data[2]}\t{data[3]} {data[4]}\t{data[5]}\t0\t0")
-        #print("\n")
+        for data in ResultProxy.fetchall():
+            print(f"{data[0]}\t{data[1]}\t{data[2]}\t{data[3]} {data[4]}\t{data[5]}\t0\t0")
+        print("\n")
+        ret.append(ResultProxy.fetchall())        
 
-        #return cursor.fetchall()
-
-    #conn.close()
+    return ret
 
 Vodovod_izvjestaj_func()

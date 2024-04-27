@@ -5,6 +5,10 @@ from GeneriranjeIzvjestajaZaVodovod import Vodovod_izvjestaj_func
 from izracunObracuna import Obracun_izracun_func
 from Izvjesce_zgrade import Ivjesce_zgrade_func
 
+#Aplikacija se pokrece izvrsavanjem ovog koda.
+#Aplikacija se otvara na adresi 127.0.0.1:5000  (localhost:5000)
+#Za pokretanje odredenog programa u link se dodaje ruta (npr. "127.0.0.1:5000/apator-maddalena")
+
 app = Flask(__name__)
 
 @app.route('/')

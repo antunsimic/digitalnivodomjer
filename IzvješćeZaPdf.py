@@ -30,6 +30,7 @@ class Zgrada:
         self.mjesto = mjesto
         self.postanski_broj = postanski_broj 
         self.Razdoblje = "" + dat_poc + " - " + dat_kraj
+        self.kraj = dat_kraj
         self.stanari = stanari
         
 Korisnici = []
@@ -53,7 +54,7 @@ sql = "SELECT * FROM 'Zgrada'"
 c.execute(sql)
 rows = c.fetchall()
 for row in rows:
-    Izvjesca.append(Zgrada(row[1], row[2], int(row[3]), datumPocetka.strftime("%d.%m.%Y"), datumKraja.strftime("%d.%m.%Y"), []))
+    Izvjesca.append(Zgrada(row[1], row[2], int(row[3]), datumPocetka.strftime("%Y.%m.%d"), datumKraja.strftime("%Y.%m.%d"), []))
     
 
 # Dohvaćanje broja stanara po ID
@@ -90,8 +91,7 @@ for row in rows:
     Korisnici[row[2]].vodomjer.append(vodomjer(row[0], row[1], row[2], pot[-1][0], lok[0]))
     
 for korisnik in Korisnici:
-    for mjera in korisnik.vodomjer:
-        Izvjesca[korisnik.zgrada-1].stanari.append(korisnik)
+    Izvjesca[korisnik.zgrada-1].stanari.append(korisnik)
 
 conn.close()
 
@@ -102,10 +102,15 @@ def create_pdf(zgrada):
     # Parsiranje pdataka za kreiranje imena datoteke
     maxOb = 0
     for stanar in zgrada.stanari:
-        if stanar.zadOb[0] > maxOb:
-            maxOb = stanar.zadOb[0]
-    doc = SimpleDocTemplate(zgrada.mjesto[:6] + "_" + str(zgrada.adresa).replace("/","_") + "_" + 
-                            str(maxOb)[:4] + "_" + str(maxOb)[2:] + ".pdf",rightMargin=60,leftMargin=60)
+        if type(stanar.zadOb) == type(9):
+            if stanar.zadOb > maxOb:
+                maxOb = stanar.zadOb
+        else:
+            if stanar.zadOb[0] > maxOb:
+                maxOb = stanar.zadOb[0]
+    adrSplit = (str(zgrada.adresa).replace("/","_")).split()
+    adrForm = '_'.join([r[:6] for r in adrSplit])
+    doc = SimpleDocTemplate(adrForm + str(maxOb)[:4] + "_" + str(maxOb)[2:] + ".pdf",rightMargin=60,leftMargin=60)
     
     # Parsiranje podataka za lakše printanje
     elementi = []
@@ -134,7 +139,7 @@ def create_pdf(zgrada):
     elementi.append(Spacer(1,20))
     elementi.append(t)
     elementi.append(Spacer(1,40))
-    elementi.append(Paragraph("U " + zgrada.mjesto + ", " + zgrada.Razdoblje))
+    elementi.append(Paragraph("U Slavonskom Brodu, " + zgrada.kraj))
     
     doc.build(elementi)
 

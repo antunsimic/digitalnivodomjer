@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sqlite3
 import datetime as dt
 from reportlab.platypus import  Paragraph, Spacer
@@ -98,50 +96,69 @@ conn.close()
 # Kreiranje .pdf datoteke-------------------------------------------------------------------------------------------
 
 def create_pdf(zgrada):
-        
-    # Parsiranje pdataka za kreiranje imena datoteke
-    maxOb = 0
-    for stanar in zgrada.stanari:
-        if type(stanar.zadOb) == type(9):
-            if stanar.zadOb > maxOb:
-                maxOb = stanar.zadOb
-        else:
-            if stanar.zadOb[0] > maxOb:
-                maxOb = stanar.zadOb[0]
-    adrSplit = (str(zgrada.adresa).replace("/","_")).split()
-    adrForm = '_'.join([r[:6] for r in adrSplit])
-    doc = SimpleDocTemplate(adrForm + str(maxOb)[:4] + "_" + str(maxOb)[2:] + ".pdf",rightMargin=60,leftMargin=60)
+    # Fetching the latest accounting period in YYYYMM format
+    conn = sqlite3.connect('vodomjeri.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT MAX(Razdoblje_obracun) FROM Obracun")
+    najnovije_razdoblje = cursor.fetchone()[0]
+    najnovije_razdoblje = str(najnovije_razdoblje)
+    MM = najnovije_razdoblje[5:7]  # Extract month
+    if len(MM) == 1:
+        MM = '0' + MM  # Ensure month is two digits
+    YYYY = najnovije_razdoblje[:4]  # Extract year
     
-    # Parsiranje podataka za lakše printanje
+    # Assuming that the 'zgrada' object has an ID or some identifier to query specific records
+    cursor.execute("SELECT MAX(Datum_tren) FROM Ocitanje")
+    najnoviji_datum = cursor.fetchone()[0]
+    conn.close()
+    
+    # Format address as in the given code example
+    adresa = zgrada.adresa.replace('/', '_')
+    adresa_split = adresa.split()
+    adresa_formatted = '_'.join([r[:6] for r in adresa_split])
+
+    # Set up the PDF document
+    doc_filename = f'{adresa_formatted}_{MM}_{YYYY}.pdf'
+    doc = SimpleDocTemplate(doc_filename, rightMargin=60, leftMargin=60)
+
     elementi = []
-    printajMe = []
-    tp = ("Rbr", "Stan                     ", "Serijski broj      \nvodomjera", "Serijski broj      \nradio modula", "Lokacija"
-          ,"Iznos\n (m3)", "Napomena         ")
-    printajMe.append(tp)
-    i = 0;
+    printajMe = [(
+        "Rbr", "Stan                     ", "Serijski broj      \nvodomjera", 
+        "Serijski broj      \nradio modula", "Lokacija", "Iznos\n (m3)", "Napomena         "
+    )]
+
+    # Append rows of data for each water meter
+    i = 0
     for stanar in zgrada.stanari:
         for vodomjer in stanar.vodomjer:
-            i+=1
-            thistuple = (i, (stanar.ime + " " + stanar.prezime), 
-            vodomjer.broj_vodomjer, vodomjer.broj_modul, vodomjer.lokacija, vodomjer.ocitanje, "            ")
+            i += 1
+            thistuple = (
+                i, f"{stanar.ime} {stanar.prezime}", vodomjer.broj_vodomjer, 
+                vodomjer.broj_modul, vodomjer.lokacija, vodomjer.ocitanje, "            "
+            )
             printajMe.append(thistuple)
-    #for k in printajMe[11]:
-    #    print(k)
+
+    # Create table for PDF
     t = Table(printajMe)
-    t.setStyle(TableStyle([('FONT',(1,1),(-2,-2),'Helvetica'),
-                           ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-                           ('BOX', (0,0), (-1,-1), 0.25, colors.black)]))
-    elementi.append(Paragraph(zgrada.adresa.upper()))
-    elementi.append(Paragraph(str(zgrada.postanski_broj) + " " + zgrada.mjesto.upper()))
-    elementi.append(Spacer(1,40))
-    elementi.append(Paragraph("Izvještaj o očitanju internih vodomjera"))
-    elementi.append(Paragraph("Razdoblje: " + zgrada.Razdoblje))
-    elementi.append(Spacer(1,20))
-    elementi.append(t)
-    elementi.append(Spacer(1,40))
-    elementi.append(Paragraph("U Slavonskom Brodu, " + zgrada.kraj))
-    
+    t.setStyle(TableStyle([
+        ('FONT', (1, 1), (-2, -2), 'Helvetica'),
+        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+        ('BOX', (0, 0), (-1, -1), 0.25, colors.black)
+    ]))
+    elementi += [
+        Paragraph(zgrada.adresa.upper()),
+        Paragraph(f"{zgrada.postanski_broj} {zgrada.mjesto.upper()}"),
+        Spacer(1, 40),
+        Paragraph("Izvještaj o očitanju internih vodomjera"),
+        Paragraph(f"Razdoblje: {zgrada.Razdoblje}"),
+        Spacer(1, 20),
+        t,
+        Spacer(1, 40),
+        Paragraph(f"U {zgrada.mjesto}, {najnoviji_datum}")
+    ]
+
     doc.build(elementi)
+    print(f"Generated report: {doc_filename}")
 
 for izvjesce in Izvjesca:
     create_pdf(izvjesce)

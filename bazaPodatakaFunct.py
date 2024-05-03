@@ -28,10 +28,10 @@ def upload_db():
         return jsonify({'error': 'Upload failed'})
     
     
-def download_db(filename):
+def download_db():
     # ako je nadena downloadaj
     try:
-        return send_file(os.path.join(UPLOAD_FOLDER, filename), as_attachment=True)
+        return send_file(os.path.join(UPLOAD_FOLDER, DATABASE_NAME), as_attachment=True)
     except FileNotFoundError:
         return jsonify({'error': 'File not found'})
     

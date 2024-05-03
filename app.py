@@ -14,9 +14,9 @@ def upload():
     return upload_db()
     
 # ruta za download slike er
-@app.route('/download/<filename>', methods=['GET'])
-def download(filename):
-    return download_db(filename)
+@app.route('/download', methods=['GET'])
+def download():
+    return download_db()
 
 # ruta za brisanje datoteke i slike er
 @app.route('/delete', methods=['DELETE'])

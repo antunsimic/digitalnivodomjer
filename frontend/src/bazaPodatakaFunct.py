@@ -20,7 +20,7 @@ def upload_db():
     if file.filename == '':
         return jsonify({'error': 'No selected file'})
     # ako je dobro uploadana baza spremi ju u folder
-    if file:
+    if file.filename.endswith('.db'):
         filename = DATABASE_NAME
         file.save(os.path.join(UPLOAD_FOLDER, filename))
         return jsonify({'success': 'er uploaded successfully', 'filename': filename})
@@ -29,10 +29,11 @@ def upload_db():
     
     
 def download_db():
-    # ako je nadena downloadaj
-    try:
-        return send_file(os.path.join(UPLOAD_FOLDER, DATABASE_NAME), as_attachment=True)
-    except FileNotFoundError:
+    filename = 'vodomjeri.db'  # Specify the filename you want to download
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
+    else:
         return jsonify({'error': 'File not found'})
     
 def delete_db():

@@ -1,0 +1,33 @@
+.App{
+  position: relative;
+  top:50px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 1050px;
+  height: 600px;
+  background-color: aliceblue;
+}
+
+
+.submit{
+  position: absolute;
+  left: 550px;
+  top: 100px;
+}
+
+.download{
+  position: absolute;
+  left: 750px;
+  top: 250px;
+}
+
+.prozor{
+  position: relative;
+  background-color: white;
+  width: 500px;
+  height: 500px;
+  border-style: solid;
+  border-color: black;
+  overflow: auto;
+}

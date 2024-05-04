@@ -1,8 +1,8 @@
 import {useState} from "react";
 import axios from "axios";
 import "./App.css";
-import "./app.py"
-import "./bazaPodatakaFunct.py"
+//import "../app.py"
+//import "../bazaPodatakaFunct.py"
 
 
 function App(){

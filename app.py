@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, send_file
 from bazaPodatakaFunct import upload_db, download_db, delete_db, vodomjeri_availability
-import os
+
 app = Flask(__name__)
 
 # treba spojit u file gdje su i ostale rute

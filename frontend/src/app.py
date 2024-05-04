@@ -25,4 +25,4 @@ def database_availability():
     return vodomjeri_availability()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

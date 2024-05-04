@@ -29,12 +29,12 @@ def upload_db():
     
     
 def download_db():
-    filename = 'vodomjeri.db'  # Specify the filename you want to download
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    if os.path.exists(file_path):
+    # ako je nadena downloadaj
+    try:
+        file_path = 'datoteke/vodomjeri.db'
         return send_file(file_path, as_attachment=True)
-    else:
-        return jsonify({'error': 'File not found'})
+    except FileNotFoundError:
+        return jsonify('File not found')
     
 def delete_db():
     try:

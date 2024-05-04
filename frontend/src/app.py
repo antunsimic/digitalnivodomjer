@@ -1,5 +1,6 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_file
 from bazaPodatakaFunct import upload_db, download_db, delete_db, vodomjeri_availability
+import os
 app = Flask(__name__)
 
 # treba spojit u file gdje su i ostale rute
@@ -10,7 +11,7 @@ def upload():
     return upload_db()
     
 # ruta za download slike er
-@app.route('/download', methods=['GET'])
+@app.route('/download', methods=['GET'])    
 def download():
     return download_db()
 
@@ -25,4 +26,5 @@ def database_availability():
     return vodomjeri_availability()
 
 if __name__ == '__main__':
+    delete_db()
     app.run()

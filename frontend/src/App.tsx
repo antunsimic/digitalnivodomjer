@@ -40,10 +40,27 @@ function App(){
     }
 // dodano za povezivanje A
     const handleDownload = () => {
-        axios.get('/download')
-            .then(response => {
-                setMsg("Sucecessful download")
-            })
+        axios({
+            url: '/download',
+            method: 'GET',
+            responseType: 'arraybuffer', // Changed to arraybuffer
+        }).then(response => {
+            // Check if response is a file
+            if (response.headers['content-type'].indexOf('application/octet-stream') !== -1) {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'vodomjeri.db'); // Replace with your file name
+                document.body.appendChild(link);
+                link.click();
+            } else {
+                // Handle other responses (e.g., error messages)
+                console.error(response.data);
+            }
+        }).catch(error => {
+            // Handle request errors
+            console.error(error);
+        });
     }
 // A
     return(

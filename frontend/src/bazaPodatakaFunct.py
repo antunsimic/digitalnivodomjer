@@ -1,5 +1,5 @@
 # Datoteka s funkcijama vezanim za upload, download, i deletion baze podatakaS
-from flask import request, jsonify, send_file
+from flask import request, jsonify, send_file, send_from_directory
 import os
 
 # ime za bazu podataka i folder u koji ce se spremati
@@ -23,18 +23,22 @@ def upload_db():
     if file.filename.endswith('.db'):
         filename = DATABASE_NAME
         file.save(os.path.join(UPLOAD_FOLDER, filename))
-        return jsonify({'success': 'er uploaded successfully', 'filename': filename})
+        return jsonify({'success': 'Database uploaded successfully', 'filename': filename})
     else:
         return jsonify({'error': 'Upload failed'})
     
     
 def download_db():
-    # ako je nadena downloadaj
     try:
-        file_path = 'datoteke/vodomjeri.db'
-        return send_file(file_path, as_attachment=True)
-    except FileNotFoundError:
-        return jsonify('File not found')
+        filepath = os.path.join('/{UPLOAD_FOLDER}/', DATABASE_NAME)
+        
+        # Provjera ako postoji
+        if os.path.exists(filepath):
+            return send_file(filepath, as_attachment=True)
+        else:
+            return "File not found", 404
+    except Exception as e:
+        return str(e), 500
     
 def delete_db():
     try:

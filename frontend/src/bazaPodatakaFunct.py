@@ -30,7 +30,7 @@ def upload_db():
     
 def download_db():
     try:
-        filepath = os.path.join('/{UPLOAD_FOLDER}/', DATABASE_NAME)
+        filepath = os.path.join(UPLOAD_FOLDER, DATABASE_NAME)
         
         # Provjera ako postoji
         if os.path.exists(filepath):
@@ -41,14 +41,13 @@ def download_db():
         return str(e), 500
     
 def delete_db():
-    try:
+    file_path = os.path.join(UPLOAD_FOLDER, DATABASE_NAME)
+    if (os.path.exists(file_path)):
         # brisanje datoteke s nazivom vodomjeri.db u datoteke folderu
-        os.remove(os.path.join(UPLOAD_FOLDER, DATABASE_NAME))
-        return jsonify({'success': 'Database deleted successfully'})
-    except FileNotFoundError:
-        return jsonify({'error': 'File not found'})
+        os.remove(file_path)
     
 def vodomjeri_availability():
+    # fukcija za provjeru dostupnosti baze podataka
     filename = DATABASE_NAME
     database_available = os.path.exists(os.path.join(UPLOAD_FOLDER, filename))
     return jsonify(database_available)

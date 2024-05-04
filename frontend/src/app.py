@@ -26,5 +26,5 @@ def database_availability():
     return vodomjeri_availability()
 
 if __name__ == '__main__':
-    delete_db()
+    delete_db() #delete database on app start
     app.run()

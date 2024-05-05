@@ -1,0 +1,13 @@
+Nije implementirana Login funkcionalnost
+
+Šalje se GET zahtjev kada se pritisne 'login' gumb, a mislim da bi trebalo biti POST.
+
+Za postizanje povezanosti frontenda i backenda morao sam koristiti komande:
+npm install webpack webpack-cli babel-loader @babel/core @babel/preset-env @babel/preset-react --save-dev
+npm run build
+
+ovo je stvorilo bundle.js, što je su zapravo App.js i LoginPage.js kompajlirani zajedno.
+
+
+Program se pokreće pokretanjem aplikacije app.py u mapi login-backend. Front-end se ne može pokretati zasebno jer je modificirana "scripts" porcija package.json datoteke.
+Web aplikacija se nalazi na adresi localhost:5000 (127.0.0.1:5000)

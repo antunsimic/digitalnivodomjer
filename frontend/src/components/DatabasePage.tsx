@@ -25,8 +25,16 @@ function DatabasePage() {
 
         })
             .then(res =>{
-                setMsg("    Upload succesful");
-                console.log(res.data);
+                //setMsg("    Upload succesful");
+                //povratne informacije s backenda
+                if(res.data.success){
+                    setMsg(res.data.success);
+                }
+                else if(res.data.error){
+                    setMsg(res.data.error);
+                }
+                
+                console.log(res);
             })
             .catch(err => {
                 setMsg("    Upload failed");
@@ -107,8 +115,9 @@ function DatabasePage() {
              }} type="file" />
                  <button type="submit" className= "btn btn-primary" onClick={handleUpload}>Upload</button>
 
-                 
+                 <br></br>
                  {msg && <span>{msg}</span>}
+                 <p>Baza mora biti formata kao u ER dijagramu</p>
              </div>
 
 

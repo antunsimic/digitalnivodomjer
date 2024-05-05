@@ -18,14 +18,15 @@ def upload_db():
     file = request.files['database']
     
     if file.filename == '':
-        return jsonify({'error': 'No selected file'})
-    # ako je dobro uploadana baza spremi ju u folder
+        return jsonify({'error': 'No file selected'})
+    
+    # ako je uploadan file s podrzanom ekstenzijom uploadaj
     if file.filename.endswith('.db'):
         filename = DATABASE_NAME
         file.save(os.path.join(UPLOAD_FOLDER, filename))
-        return jsonify({'success': 'Database uploaded successfully', 'filename': filename})
+        return jsonify({'success': 'Upload successful', 'filename': filename})
     else:
-        return jsonify({'error': 'Upload failed'})
+        return jsonify({'error': 'Upload failed - Please choose a file ending with .db'})
     
     
 def download_db():
@@ -34,6 +35,7 @@ def download_db():
         
         # Provjera ako postoji
         if os.path.exists(filepath):
+            # salji file na download preko browsera
             return send_file(filepath, as_attachment=True)
         else:
             return "File not found", 404
@@ -46,7 +48,7 @@ def delete_db():
         if (os.path.exists(file_path)):
             # brisanje datoteke s nazivom vodomjeri.db u datoteke folderu
             os.remove(file_path)
-            return "File removed"
+            return "File deleted"
         else: 
             return "File not found"
     except Exception as e:

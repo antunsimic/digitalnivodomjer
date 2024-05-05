@@ -1,21 +1,70 @@
-# digitalni vodomjer
+# Getting Started with Create React App
 
-Potrebno je izraditi web aplikaciju sa sljedećim funkcionalnostima: 
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-Učitavanje datoteka stanja vodomjera.
-Za svaku od X zgrada iz stanja vodomjera iz rfu.txt potrebno je napraviti izvještaj za svaku zgradu u PDF formatu. 
+## Available Scripts
 
-Slanje formiranih izvještaja na adrese e-pošte stambenih zgrada  
+In the project directory, you can run:
 
-Za svaku od X zgrada iz stanja vodomjera iz rfu.txt potrebno je  napraviti izvještaj za Vodovod u XLS  formatu.  
+### `npm start`
 
-Slanje svih formiranih XLS-a u jednoj poruci na adresu e-pošte distributera vode za potrebe izrade računa za potrošnju vode (npr. Vodovod d.o.o., za zgrade u Slavonskom Brodu) 
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-Učitavanje bankovnih izvoda s uplatama korisnika vodomjera za uslugu očitavanja vodomjera. 
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-strojno učenje za predviđanje potrošnje: aplikacija predviđa buduću potrošnju vode na temelju povijesnih podataka.
+### `npm test`
 
-vizualizaciju potrošnje kroz grafove, mogućnost filtriranja i sortiranja stanova po potrošnji
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-Mapa sa svim potrebnim datotekama: https://uniri-my.sharepoint.com/:f:/r/personal/antun_simic_student_uniri_hr/Documents/6.%20semestar/Programsko%20in%C5%BEenjerstvo/projekt/Vodomjeri?csf=1&web=1&e=FCqf22
-  
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

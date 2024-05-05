@@ -1,5 +1,5 @@
 # Datoteka s funkcijama vezanim za upload, download, i deletion baze podatakaS
-from flask import request, jsonify, send_file, send_from_directory
+from flask import request, jsonify, send_file
 import os
 
 # ime za bazu podataka i folder u koji ce se spremati
@@ -41,13 +41,20 @@ def download_db():
         return str(e), 500
     
 def delete_db():
-    file_path = os.path.join(UPLOAD_FOLDER, DATABASE_NAME)
-    if (os.path.exists(file_path)):
-        # brisanje datoteke s nazivom vodomjeri.db u datoteke folderu
-        os.remove(file_path)
+    try:
+        file_path = os.path.join(UPLOAD_FOLDER, DATABASE_NAME)
+        if (os.path.exists(file_path)):
+            # brisanje datoteke s nazivom vodomjeri.db u datoteke folderu
+            os.remove(file_path)
+            return "File removed"
+        else: 
+            return "File not found"
+    except Exception as e:
+        return str(e), 500
     
 def vodomjeri_availability():
     # fukcija za provjeru dostupnosti baze podataka
     filename = DATABASE_NAME
     database_available = os.path.exists(os.path.join(UPLOAD_FOLDER, filename))
+    # vraća true/false
     return jsonify(database_available)

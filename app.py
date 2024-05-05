@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, render_template, send_file, jsonify
 from bazaPodatakaFunct import upload_db, download_db, delete_db, vodomjeri_availability
 
 app = Flask(__name__)

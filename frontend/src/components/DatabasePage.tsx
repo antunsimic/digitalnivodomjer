@@ -40,6 +40,12 @@ function DatabasePage() {
                 setMsg("    Upload failed");
                 console.error(err);
             });
+
+        if('/database_availability'){
+            setMsg(" Baza je dostupna")
+        }else{
+            setMsg(" Baza nije postupna")
+        }
     }
 // dodano za povezivanje A
     const handleDownload = () => {
@@ -116,7 +122,7 @@ function DatabasePage() {
                  <button type="submit" className= "btn btn-primary" onClick={handleUpload}>Upload</button>
 
                  <br></br>
-                 {msg && <span>{msg}</span>}
+                 <p>{msg && <span>{msg}</span>}</p>
                  <p>Baza mora biti formata kao u ER dijagramu</p>
              </div>
 

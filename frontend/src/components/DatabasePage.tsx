@@ -3,6 +3,8 @@ import axios from "axios";
 import "../App.css";
 import er_dijagram from '../assets/er_dijagram.png' //import slike er dijagrama za prikaz unutar prozora
 
+import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+
 function DatabasePage() {
     const [file, setFile] = useState<File | null>(null);
     const [msg, setMsg] = useState(" ");
@@ -56,32 +58,43 @@ function DatabasePage() {
         });
     }
 
-    // Funkcija koja poziva brisanje datoteke po napustanju ili refreshanju database stranice
-    const handleLeavePage = () => {
-        axios.delete('/delete')
-            .then(() => {
-                console.log('Uploaded file deleted');
-            })
-            .catch(error => {
-                console.error('Error deleting uploaded file:', error);
-            });
-    };
+   
 
-    // Event listener koji poziva prethodnu funkciju po unloadanju stranice
+    // Brisanje po premjestanju na bilo koju stranicu unutar webapp i refreshanju
+    const location = useLocation();
     useEffect(() => {
-        //dodavanje event listenera
-        window.addEventListener('beforeunload', handleLeavePage);
-
-        // micanje eventlistenera kada je unloadana stranica 
-        return () => {
-            window.removeEventListener('beforeunload', handleLeavePage);
+        const handleNavigate = () => {
+            
+            axios.delete('/delete')
+                .then(() => {
+                    console.log('Uploaded file deleted');
+                })
+                .catch(error => {
+                    console.error('Error deleting uploaded file:', error);
+                });
         };
-    }, []);
-// A
+
+        
+        const cleanup = () => {
+            handleNavigate();
+        };
+
+        return () => {
+            cleanup();
+        };
+    }, [location]);
+
+    // Brisanje po zatvaranju taba i refreshanju ali ne po promjeni stranice unutar webappa
+    window.onbeforeunload = () => axios.delete('/delete');
+
+    
+    // A
     return(
 
          <div className="App">
-
+            {/*TESTIRANJE BRISANJA PO RUTIRANJU<div>
+                <Link to="/">home</Link>
+            </div>*/}
              <div className = "submit">
              <input onChange={(e) => { 
                     const selectedFile = e.target.files && e.target.files[0];

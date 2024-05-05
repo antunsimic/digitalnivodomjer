@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import DatabasePage from './components/DatabasePage';
 import './App.css';
 
+
 function App() {
+
   return (
     <Router>
       <div className="App">

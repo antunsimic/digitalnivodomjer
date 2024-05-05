@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, send_file, jsonify
 from bazaPodatakaFunct import upload_db, download_db, delete_db, vodomjeri_availability
+import atexit
 
 app = Flask(__name__)
 
@@ -24,6 +25,9 @@ def delete():
 @app.route('/database_availability')
 def database_availability():
     return vodomjeri_availability()
+
+# brisanje baze po isključivanju flask backenda
+atexit.register(delete_db)
 
 if __name__ == '__main__':
     delete_db() #delete database on app start

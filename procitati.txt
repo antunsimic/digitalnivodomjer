@@ -1,6 +1,4 @@
-Nije implementirana Login funkcionalnost
-
-Šalje se GET zahtjev kada se pritisne 'login' gumb, a mislim da bi trebalo biti POST.
+Nije u potpunosti implementirana Login funkcionalnost
 
 Za postizanje povezanosti frontenda i backenda morao sam koristiti komande:
 npm install webpack webpack-cli babel-loader @babel/core @babel/preset-env @babel/preset-react --save-dev

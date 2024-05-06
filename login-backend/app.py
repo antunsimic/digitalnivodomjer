@@ -18,22 +18,20 @@ def index():
     </html>
     """
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
 
-        if email == 'example@example.com' and password == 'password':
-            print(email)
-            print(password)
-            return jsonify({'success': True, 'message': 'Login successful'})
-        else:
-            print(email)
-            print(password)
-            return jsonify({'success': False, 'message': 'Login unsuccessful'})
+    if email == 'example@example.com' and password == 'password':
+        print(email)
+        print(password)
+        return jsonify({'success': True, 'message': 'Login successful'})
     else:
-        return jsonify({'success': False, 'message': 'Login Unsuccessful'}) #vraća se ovo, potrebno promijeniti react kod da koristi metodu POST?
+        print(email)
+        print(password)
+        return jsonify({'success': False, 'message': 'Login unsuccessful'})
 
 @app.route('/static/bundle.js') #u bundle.js su spojene sve komponente(App.js i LoginPage.js)
 def serve_bundle():

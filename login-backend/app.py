@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
+#from .. import envs
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -9,7 +11,7 @@ def index():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login Page</title>
+        <title>Digitalni vodomjer</title>
     </head>
     <body>
         <div id="root"></div>
@@ -24,9 +26,11 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    if email == 'example@example.com' and password == 'password':
+    if email == 'example@example.com' and password == 'password': #baza podataka s postojecim korisnicima?
         print(email)
         print(password)
+        #envs.APP_PASSWORD = password
+        #envs.SENDER_EMAIL = email
         return jsonify({'success': True, 'message': 'Login successful'})
     else:
         print(email)

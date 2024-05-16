@@ -1,14 +1,19 @@
 import React from 'react';
 import '../assets/uploadframe.css';
 
-const Upload = ({ width, height }) => {
+const UploadFrame = ({ width, height, files }) => {
   return (
     <div className="frame-container">
       <div className="frame2" style={{ width, height }}>
-        UPLOADANE DATOTEKE
+        <div className="header">UPLOADANE DATOTEKE</div>
+        <ul className="file-list">
+          {files.map((file, index) => (
+            <li key={index}>{file.name}</li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 }
 
-export default Upload;
+export default UploadFrame;

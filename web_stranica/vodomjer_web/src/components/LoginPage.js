@@ -20,7 +20,7 @@ function LoginPage({ setLoggedIn }) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Fetch login API endpoint with POST method
+    // koristenje 'fetch' API-a za povezivanje s flask-om
     fetch('/login', {
       method: 'POST',
       headers: {
@@ -33,16 +33,14 @@ function LoginPage({ setLoggedIn }) {
     })
     .then(response => response.json())
     .then(data => {
-      // Handle response from server (e.g., show success/failure message)
+      //uspjeh/neuspjeh prilikom prijave
       console.log(data);
       setLoggedIn(true);
       console.log('Logged in: ', setLoggedIn);
       navigate('/');
-      // Display alert after successful login
-      alert('Podaci spremljeni u /login-backend/podaci.txt');
+      alert('Podaci spremljeni u podaci.txt');
     })
     .catch(error => {
-      // Handle error
       console.error('Error:', error);
     });
   }

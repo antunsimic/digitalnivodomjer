@@ -1,14 +1,47 @@
-import React from 'react'
-import DragDropFrame from './DragDropFrame'
-import UploadFrame from './UploadFrame'
+import React, { useState } from 'react';
+import DragDropFrame from './DragDropFrame';
+import UploadFrame from './UploadFrame';
 
-function ImportFiles(){
-    return (
-        <>
-            <DragDropFrame width="800px" height="500px"/>
-            <UploadFrame width="300px" height="700px"/>
-        </>
-    );
+const ImportFiles = () => {
+  const [files, setFiles] = useState([]);
+
+  const handleFilesDropped = (droppedFiles) => {
+    setFiles(droppedFiles);
+  };
+
+  const handleButtonClick = async () => {
+    if (files.length === 0) {
+      alert('Nema datoteka za unos');
+      return;
+    }
+
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+
+    try {
+      const response = await fetch('/import', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        alert('Datoteke uspjesno unesene');
+      } else {
+        console.error('Greska prilikom unosa:', response.statusText);
+        alert('Greska prilikom unosa');
+      }
+    } catch (error) {
+      console.error('Greska prilikom unosa:', error);
+      alert('Greska prilikom unosa');
+    }
+  };
+
+  return (
+    <>
+      <DragDropFrame width="800px" height="500px" onFilesDropped={handleFilesDropped} onButtonClick={handleButtonClick} />
+      <UploadFrame width="300px" height="700px" files={files} />
+    </>
+  );
 }
 
 export default ImportFiles;

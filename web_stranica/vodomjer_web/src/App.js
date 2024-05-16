@@ -5,6 +5,7 @@ import Sidemenu from './components/Sidemenu';
 import LoginPage from './components/LoginPage';
 import LogoutPage from './components/LogoutPage';
 import DatabasePage from './components/DatabasePage';
+import ImportFiles from './components/ImportFiles'
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/login" element={<LoginPage loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>} />
             <Route path="/logout" element={<LogoutPage loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>} />
             <Route path="/baza" element={<DatabasePage />} />
+            <Route path='/ucitavanje' element={<ImportFiles />} />
           </Routes>
         </div>
       </div>

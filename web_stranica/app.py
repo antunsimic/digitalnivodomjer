@@ -7,6 +7,7 @@ Created on Mon May 13 01:17:41 2024
 
 from flask import Flask, request, render_template, send_file, jsonify
 from bazaPodatakaFunct import upload_db, download_db, delete_db, vodomjeri_availability
+from godisnjaPotrosnjaFunct import get_consumption, get_godine, get_korisnici, get_zgrade
 import atexit
 import os
 
@@ -61,6 +62,27 @@ def login():
 def logout():
     delete_file()
     return jsonify({'success': True, 'message': 'Logout successful'})
+
+# godisnja-potrosnja
+#
+@app.route('/get_zgrade', methods=['GET'])
+def get_buildings():
+    return get_zgrade()
+    
+@app.route('/get_korisnici', methods=['GET'])
+def get_users():
+    return get_korisnici()
+    
+
+@app.route('/get_godine', methods=['GET'])
+def get_years():
+    return get_godine()
+   
+
+@app.route('/potrosnja', methods=['GET'])
+def get_consumption_data():
+    return get_consumption()
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

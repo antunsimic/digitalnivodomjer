@@ -2,8 +2,12 @@ import sqlite3
 from datetime import datetime
 import os
 
-directory = r"C:\Users\antun_81f2caf\OneDrive\studij\6._semestar\programsko_inzenjerstvo\projekt\unos_izvoda"  # Update this path as necessary
-conn = sqlite3.connect('vodomjeri.db')
+directory = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+directory = os.path.abspath(directory)
+
+database_path = os.path.join(os.path.dirname(__file__), '..', 'datoteke', 'vodomjeri.db')
+database_path = os.path.abspath(database_path)
+conn = sqlite3.connect(database_path, check_same_thread=False)
 cursor = conn.cursor()
 
 def process_file(file_path):
@@ -35,7 +39,7 @@ def process_file(file_path):
                 line[268:294].strip(),
                 line[298:438].strip()
             )
-
+            print("baza")
             # Check for existing entry by redniBrojIzvoda, redniBrojStavkeIzvoda and Datum_izvrsenje
             cursor.execute("SELECT COUNT(*) FROM Uplata WHERE Rbr_izvadak=? AND Rbr_stv_izvadak=? AND Datum_izvrsenje=?", (redniBrojIzvoda, brojStavke + 1, datum_izvrsenje))
             if cursor.fetchone()[0] == 0:
@@ -46,10 +50,13 @@ def process_file(file_path):
     print(f"Processed {brojStavke} entries from {file_path}")
 
 # List all .OTP files in the specified directory and process them
-for filename in os.listdir(directory):
-    if filename.endswith(".OTP"):
-        file_path = os.path.join(directory, filename)
-        process_file(file_path)
+def ucitavanje_izvoda():
+    for filename in os.listdir(directory):
+        print(filename)
+        if filename.endswith(".OTP"):
+            file_path = os.path.join(directory, filename)
+            process_file(file_path)
+    conn.close()
+    print("Completed processing all files.")
 
-conn.close()
-print("Completed processing all files.")
+#ucitavanje_izvoda()

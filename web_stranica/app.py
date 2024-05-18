@@ -12,6 +12,7 @@ import os
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+
 app = Flask(__name__)
 CORS(app, supports_credentials=True)  # Allow credentials for cross-origin requests
 app.secret_key = 'your_really_secret_key_here'
@@ -83,9 +84,12 @@ def logout():
         return jsonify({'success': True, 'message': 'Logout successful'})
     else:
         return "Već ste odjavljeni"
-    
+
+
 @app.route('/upload-izvjestaj', methods=['POST'])
 def upload_izvjestaj():
+    from bankovni_izvodi import ucitavanje_izvoda
+    from ApatorMaddalena import ocitanja_vodomjera
     if 'files' not in request.files:
         return 'No file part', 400
     
@@ -96,7 +100,22 @@ def upload_izvjestaj():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
+    ###unosi u bazu podataka
+    ucitavanje_izvoda()
+    ocitanja_vodomjera()
+    ###/unosi u bazu podataka
+
+    #brisu se sve datoteke iz 'uploads' foldera
+    uploads_dir = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+    uploads_dir = os.path.abspath(uploads_dir)
+
+    if os.path.exists(uploads_dir):
+        for filename in os.listdir(uploads_dir):
+            file_path = os.path.join(uploads_dir, filename)
+            os.unlink(file_path)
+
     return 'Files successfully uploaded', 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

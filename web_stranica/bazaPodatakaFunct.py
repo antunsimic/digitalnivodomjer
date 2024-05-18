@@ -1,5 +1,5 @@
 # Datoteka s funkcijama vezanim za upload, download, i deletion baze podatakaS
-from flask import request, jsonify, send_file
+from flask import request, jsonify, send_file, session
 import os
 
 # ime za bazu podataka i folder u koji ce se spremati
@@ -23,40 +23,39 @@ def upload_db():
     # ako je uploadan file s podrzanom ekstenzijom uploadaj
     if file.filename.endswith('.db'):
         filename = DATABASE_NAME
-        file.save(os.path.join(UPLOAD_FOLDER, filename))
+        filepath=os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+        session["uploaded_file"]=filepath
         return jsonify({'success': 'Upload successful', 'filename': filename})
     else:
         return jsonify({'error': 'Upload failed - Please choose a file ending with .db'})
     
     
 def download_db():
-    try:
-        filepath = os.path.join(UPLOAD_FOLDER, DATABASE_NAME)
+    
+        filepath = session.get("uploaded_file")
         
         # Provjera ako postoji
-        if os.path.exists(filepath):
-            # salji file na download preko browsera
+        if filepath and os.path.exists(filepath):
             return send_file(filepath, as_attachment=True)
         else:
-            return "File not found", 404
-    except Exception as e:
-        return str(e), 500
+            return jsonify({'error': 'File not found'}), 404
+
     
 def delete_db():
-    try:
-        file_path = os.path.join(UPLOAD_FOLDER, DATABASE_NAME)
-        if (os.path.exists(file_path)):
+        filepath = session.get("uploaded_file")
+        if (filepath):
             # brisanje datoteke s nazivom vodomjeri.db u datoteke folderu
-            os.remove(file_path)
+            os.remove(filepath)
+            session.pop("uploaded_file", None)
             return "File deleted"
         else: 
             return "File not found"
-    except Exception as e:
-        return str(e), 500
+
     
 def vodomjeri_availability():
     # fukcija za provjeru dostupnosti baze podataka
     filename = DATABASE_NAME
-    database_available = os.path.exists(os.path.join(UPLOAD_FOLDER, filename))
+    database_available = os.path.exists(session.get("uploaded_file"))
     # vraća true/false
     return jsonify(database_available)

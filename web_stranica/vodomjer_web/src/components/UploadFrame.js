@@ -8,7 +8,7 @@ const UploadFrame = ({ width, height, files }) => {
         <div className="header">UPLOADANE DATOTEKE</div>
         <ul className="file-list">
           {files.map((file, index) => (
-            <li key={index}>{file.name}</li>
+            <li key={index} className="file-item">{file.name}</li>
           ))}
         </ul>
       </div>

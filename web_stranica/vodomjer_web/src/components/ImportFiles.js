@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DragDropFrame from './DragDropFrame';
 import UploadFrame from './UploadFrame';
+import '../assets/importfiles.css';  // Import the new CSS file
 
 const ImportFiles = () => {
   const [files, setFiles] = useState([]);
@@ -19,7 +20,7 @@ const ImportFiles = () => {
     files.forEach(file => formData.append('files', file));
 
     try {
-      const response = await fetch('/import', {
+      const response = await fetch('/upload-izvjestaj', {
         method: 'POST',
         body: formData
       });
@@ -37,10 +38,12 @@ const ImportFiles = () => {
   };
 
   return (
-    <>
-      <DragDropFrame width="800px" height="500px" onFilesDropped={handleFilesDropped} onButtonClick={handleButtonClick} />
+    <div className="import-files-container">
+      <div className="dragdrop-container">
+        <DragDropFrame width="800px" height="500px" onFilesDropped={handleFilesDropped} onButtonClick={handleButtonClick} />
+      </div>
       <UploadFrame width="300px" height="700px" files={files} />
-    </>
+    </div>
   );
 }
 

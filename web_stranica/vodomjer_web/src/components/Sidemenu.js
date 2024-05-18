@@ -1,14 +1,15 @@
 import React from 'react';
 import '../assets/sidemenu.css';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const Sidemenu = () => {
   return (
     <div className="side-menu">
       <ul>
-        <li><a href="/ucitavanje">Učitavanje datoteka vodomjera/bankovnih izvoda</a></li>
-        <li><a href="/izvjestaj">Formiranje izvještaja</a></li>
-        <li><a href="/slanje">Slanje izvještaja</a></li>
-        <li><a href="/baza">Uvid u bazu podataka</a></li>
+        <li><Link to="/ucitavanje">Učitavanje datoteka vodomjera/bankovnih izvoda</Link></li>
+        <li><Link to="/izvjestaj">Formiranje izvještaja</Link></li>
+        <li><Link to="/slanje">Slanje izvještaja</Link></li>
+        <li><Link to="/baza">Uvid u bazu podataka</Link></li>
       </ul>
     </div>
   );

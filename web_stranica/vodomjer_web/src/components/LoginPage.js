@@ -1,61 +1,57 @@
+// LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';  // Ensure axios is installed and imported
+import { useAuth } from '../contexts/AuthContext'; // Correct the path if necessary
 
-function LoginPage({ setLoggedIn }) {
-  const [showPassword, setShowPassword] = useState(false);
+function LoginPage() {
+  const { setLoggedIn } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(prevState => !prevState);
-  }
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    if (name === 'email') setEmail(value);
-    if (name === 'password') setPassword(value);
-  }
+    setEmail(name === 'email' ? value : email);
+    setPassword(name === 'password' ? value : password);
+  };
 
-  const handleSubmit = (event) => {
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
-    // koristenje 'fetch' API-a za povezivanje s flask-om
-    fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      //uspjeh/neuspjeh prilikom prijave
-      console.log(data);
-      setLoggedIn(true);
-      console.log('Logged in: ', setLoggedIn);
-      navigate('/');
-      alert('Podaci spremljeni u podaci.txt');
-    })
-    .catch(error => {
+    try {
+      const response = await axios.post('/login', { email, password }, {
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true
+      });
+      if (response.data.success) {
+        setLoggedIn(true);
+        navigate('/');
+      } else {
+        setMessage(response.data.message || 'Login failed');
+      }
+    } catch (error) {
+      setMessage(error.response?.data?.error || "Login error");
       console.error('Error:', error);
-    });
-  }
+    }
+  };
 
   return (
     <div style={{ textAlign: 'center' }}>
       <h2>Log in</h2>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ marginRight: '1rem' }}>Email address</label>
+          <label>Email address</label>
           <br />
           <input type="email" name="email" value={email} onChange={handleInputChange} />
         </div>
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ marginRight: '1rem' }}>Password</label>
+          <label>Password</label>
           <br />
           <input type={showPassword ? 'text' : 'password'} name="password" value={password} onChange={handleInputChange} />
           <button type="button" onClick={togglePasswordVisibility}>
@@ -63,9 +59,7 @@ function LoginPage({ setLoggedIn }) {
           </button>
         </div>
         <button type="submit">Log in</button>
-        <div>
-          Ako ne znate što je Google App Password ili je još niste postavili, više informacija možete pronaći <a href="https://support.google.com/accounts/answer/185833?hl=en">ovdje.</a>
-        </div>
+        {message && <div>{message}</div>}
       </form>
     </div>
   );

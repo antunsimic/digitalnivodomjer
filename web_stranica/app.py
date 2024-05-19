@@ -23,7 +23,7 @@ app.config['SESSION_COOKIE_SECURE'] = True  # Use if HTTPS is enabled
 def upload():
     return upload_db()
     
-# ruta za download slike er
+# ruta za download db
 @app.route('/download', methods=['GET'])    
 def download():
     return download_db()
@@ -85,35 +85,45 @@ def get_buildings():
     if session.get("logged_in") and session.get("uploaded_file"):
         return get_zgrade()
     else:
-        print("Baza nije uploadana ili korisnik nije ulogiran")
+        return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
+        
 # vraćanje korisnika(id, ime, prezime) za prikaz na izborniku frontend    
 @app.route('/get_korisnici', methods=['GET'])
 def get_users():
     if session.get("logged_in") and session.get("uploaded_file"):
         return get_korisnici()
     else:
-        print("Baza nije uploadana ili korisnik nije ulogiran")
+        return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
+        
 # vraćanje godina(dubstring prva 4 broja razdoblja) za prikaz na izborniku frontend
 @app.route('/get_godine', methods=['GET'])
 def get_years():
     if session.get("logged_in") and session.get("uploaded_file"):
         return get_godine()
     else:
-        print("Baza nije uploadana ili korisnik nije ulogiran")
+        return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
+        
 # kombinacija prethodne tri - odabrati koja opcija je bolja za frontend
 @app.route('/get_filter', methods=['GET'])
 def get_filters():
     if session.get("logged_in") and session.get("uploaded_file"):
+        # vraca u formatu buildings, users, years
+        # buildings ima building[0](id) [1](ulica) [2](mjesto) za svaki building po buildings
+        # users ima user[0](id) [1](ime) [2](prezime)
+        # years ima samo godine
+        # vrijedi i za prethodne 3 rute ali zasebno, sama logika je smjesnetana u godisnjaPotrosnjaFunct.py
         return get_filter_data()
     else:
-        print("Baza nije uploadana ili korisnik nije ulogiran")
-# vraćanje podataka dobivenih na         
+        return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
+        
+# vraćanje podataka dobivenih na temelju filtara za umetanje u graf
 @app.route('/potrosnja', methods=['GET'])
 def get_consumption_data():
     if session.get("logged_in") and session.get("uploaded_file"):
+        # vraca result sa row po resultu: [0](datum) [1](potrosnja)
         return get_consumption()
     else:
-        print("Baza nije uploadana ili korisnik nije ulogiran")
+        return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
 
 if __name__ == '__main__':
     app.run(debug=True)

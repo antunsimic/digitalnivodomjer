@@ -1,26 +1,31 @@
-from flask import request, jsonify
+from flask import request, jsonify, session
 import sqlite3
 
+
+def connect_to_db():
+    filepath = session.get("uploaded_file")
+    print(filepath)
+    #conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
+    conn = sqlite3.connect(filepath)    ########################testirat jos
+    cursor = conn.cursor()
+    return conn, cursor
 # Nalazi id, ulice i mjesta zgrada u Zgrada tablici i vraća ih za odabir na frontendu (ulica i mjesto kao tekst, id bi se trebao vratit po odabiru)
 def get_zgrade():
-    conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
-    cursor = conn.cursor()
+    conn, cursor = connect_to_db()
     buildings = cursor.execute('SELECT ID_zgrada, Ulica_kbr, Mjesto FROM Zgrada').fetchall()
     conn.close()
     return jsonify(buildings=[{'id': building[0], 'ulica': building[1], 'mjesto': building[2]} for building in buildings])
 
 # Nalazi id, ime i prezime korisnika i vraća za ofabir na frontendu
 def get_korisnici():
-    conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
-    cursor = conn.cursor()
+    conn, cursor = connect_to_db()
     users = cursor.execute('SELECT ID_korisnik, Ime, Prezime FROM Korisnik').fetchall()    
     conn.close()
     return jsonify(users=[{'id': user[0], 'ime': user[1], 'prezime': user[2]} for user in users])
 
 # Nalazi godinu za odabir na frontendu
 def get_godine():
-    conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
-    cursor = conn.cursor()
+    conn, cursor = connect_to_db()
     # substring koji iz Razdoblje_obracun uzima iskljucivo godinu
     years = cursor.execute('SELECT DISTINCT substr(Razdoblje_obracun, 1, 4) FROM Obracun').fetchall()
     conn.close()
@@ -28,8 +33,7 @@ def get_godine():
 
 # kombinirana funkcija prethodne tri - ODABRATI koja je bolja za frontend ostalo izbrisat
 def get_filter_data():
-    conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
-    cursor = conn.cursor()
+    conn, cursor = connect_to_db()
     
     # dohvaćanje podataka za odbir na frontendu
     buildings =cursor.execute('SELECT ID_zgrada, Ulica_kbr, Mjesto FROM Zgrada').fetchall()
@@ -50,8 +54,7 @@ def get_filter_data():
 
 # Na temelju odabranog(ID_zgrada, ID_korisnik, godina) uzima vrijednosti potrošnje i datume obračuna
 def get_consumption():
-    conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
-    cursor = conn.cursor()
+    conn, cursor = connect_to_db()
     building = request.args.get('building')
     user = request.args.get('user')
     year = request.args.get('year')
@@ -64,3 +67,4 @@ def get_consumption():
 
     return jsonify({'consumption': consumption})
 
+get_filter_data()

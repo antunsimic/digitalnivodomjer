@@ -66,5 +66,3 @@ def get_consumption():
 
 
     return jsonify({'consumption': consumption})
-
-get_filter_data()

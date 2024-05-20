@@ -87,7 +87,7 @@ def get_buildings():
     else:
         return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
         
-# vraćanje korisnika(id, ime, prezime) za prikaz na izborniku frontend    
+# vraćanje korisnika(id, ime, prezime) za prikaz na izborniku frontend   OVISI O BUILDING 
 @app.route('/get_korisnici', methods=['GET'])
 def get_users():
     if session.get("logged_in") and session.get("uploaded_file"):
@@ -95,7 +95,7 @@ def get_users():
     else:
         return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
         
-# vraćanje godina(dubstring prva 4 broja razdoblja) za prikaz na izborniku frontend
+# vraćanje godina(dubstring prva 4 broja razdoblja) za prikaz na izborniku frontend    OVISI O KORISNIKU
 @app.route('/get_godine', methods=['GET'])
 def get_years():
     if session.get("logged_in") and session.get("uploaded_file"):
@@ -111,7 +111,7 @@ def get_filters():
         # buildings ima building[0](id) [1](ulica) [2](mjesto) za svaki building po buildings
         # users ima user[0](id) [1](ime) [2](prezime)
         # years ima samo godine
-        # vrijedi i za prethodne 3 rute ali zasebno, sama logika je smjesnetana u godisnjaPotrosnjaFunct.py
+        # Kao zaasebne rute ali bez ograničenja
         return get_filter_data()
     else:
         return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})

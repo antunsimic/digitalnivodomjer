@@ -5,6 +5,7 @@ import Sidemenu from './components/Sidemenu';
 import LoginPage from './components/LoginPage';
 import LogoutPage from './components/LogoutPage';
 import DatabasePage from './components/DatabasePage';
+import LineChart from './components/LineChart';
 import './App.css';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthStatusChecker from './components/AuthStatusChecker'; // Import the new component
@@ -26,6 +27,7 @@ const App = () => {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/logout" element={<LogoutPage />} />
                   <Route path="/baza" element={<DatabasePage />} />
+                  <Route path="/" element={<LineChart />} />
                 </Routes>
               </div>
             </div>

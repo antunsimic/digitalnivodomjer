@@ -13,6 +13,7 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = 'your_really_secret_key_here'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = True  # Use if HTTPS is enabled

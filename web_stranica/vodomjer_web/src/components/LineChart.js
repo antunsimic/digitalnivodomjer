@@ -8,7 +8,7 @@ const LineChart = () => {
 
     useEffect(() => {
         const getZgrade = async () => {
-            const result = await axios.get('http://localhost:5000/get_zgrade')
+            const result = await axios.get('/get_zgrade')
             .then(response => {
                 console.log(response.data);
                 //setZgrade(response.data);
@@ -19,8 +19,81 @@ const LineChart = () => {
         getZgrade();
     }, [zgrade]);
 
+    ///////////////////////////////////////////////////////////////////////
+    // kod koji sam koje se koristio za testiranje backenda- nije napravljen izbor godine i vraćanje podataka grafa na frontendu
+    const [buildings, setBuildings] = useState([]);
+    const [selectedBuilding, setSelectedBuilding] = useState('');
+    const [users, setUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState('');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const buildingsResponse = await axios.get('/get_zgrade');
+                setBuildings(buildingsResponse.data.buildings || []);
+
+            } catch (error) {
+                console.error('Error fetching buildings or years:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const handleBuildingChange = async (buildingId) => {
+        // kade se u form promijeni zgrada vracaju se korisnici vezani za tu zgradu
+        setSelectedBuilding(buildingId);
+        setSelectedUser(''); 
+
+        try {
+            const usersResponse = await axios.get('/get_korisnici', {
+                params: { selected_building: buildingId }
+            });
+            setUsers(usersResponse.data.users || []);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        // tu bi trebao ic kod za /potrosnja
+    };
+    ///////////////////////////////////////////////////////////////////////////////////////////
     return (
         <div>
+            {"Izbornik koji se koristio kod testiranja"}
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>
+                        Building:
+                        <select value={selectedBuilding} onChange={(e) => handleBuildingChange(e.target.value)}>
+                            <option value="">Select a building</option>
+                            {buildings.map((building) => (
+                                <option key={building.id} value={building.id}>
+                                    {building.ulica}, {building.mjesto}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        User:
+                        <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+                            <option value="">Select a user</option>
+                            {users.map((user) => (
+                                <option key={user.id} value={user.id}>
+                                    {user.ime} {user.prezime}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                </div>
+            </form>
+
+
+            
             <div className="dropdown">
                 <select>
                     <option value="">Izaberite zgradu</option>
@@ -42,6 +115,7 @@ const LineChart = () => {
                 </select>
             </div>
         </div>
+        
     );
 }
 

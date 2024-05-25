@@ -35,10 +35,10 @@ def get_korisnici():
 # Nalazi godinu za odabir na frontendu
 def get_godine():
     conn, cursor = connect_to_db()
-    selected_user = request.args.get('selected_user')
+    
     # substring koji iz Razdoblje_obracun uzima iskljucivo godinu, na temelju koji je user prethodno uzet
-    years = cursor.execute('''SELECT DISTINCT substr(Razdoblje_obracun, 1, 4) FROM Obracun WHERE ID_zgrada = ?
-    ''', (selected_user,)).fetchall()
+    years = cursor.execute('''SELECT DISTINCT substr(Razdoblje_obracun, 1, 4) FROM Obracun
+    ''').fetchall()
     conn.close()
     return jsonify(years=[year[0] for year in years])
 
@@ -71,7 +71,7 @@ def get_consumption():
     user = request.args.get('user')
     year = request.args.get('year')
 
-    result = cursor.execute(f"SELECT Datum_obracun, Potrosnja_hv FROM Obracun WHERE ID_korisnik={user} AND razdoblje_obracun LIKE '{year}%' ORDER BY Datum_obracun ASC").fetchall()
+    result = cursor.execute(f"SELECT Datum_obracun, Potrosnja_hv FROM Obracun WHERE ID_korisnik={user} AND razdoblje_obracun LIKE '{year}%'").fetchall()
     conn.close()
     # Vrijednosti koje se vracaju za graf 
     consumption = [{'datum': row[0], 'potrosnja': row[1]} for row in result]

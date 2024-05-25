@@ -11,7 +11,8 @@ const LineChart = () => {
     const [selectedBuilding, setSelectedBuilding] = useState('');
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState('');
-    const [years, setYears] = useState(['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024']);
+    //const [years, setYears] = useState(['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024']);
+    const [years, setYears] = useState([]);
     const [selectedYear, setSelectedYear] = useState('');
     const [graphData, setGraphData] = useState([]);
     const [datumi, setDatumi] = useState([]);
@@ -21,7 +22,9 @@ const LineChart = () => {
         const fetchData = async () => {
             try {
                 const buildingsResponse = await axios.get('/get_zgrade');
+                const yearsResponse = await axios.get('/get_godine');
                 setBuildings(buildingsResponse.data.buildings || []);
+                setYears(yearsResponse.data.years || []);
             } catch (error) {
                 console.error('Error fetching buildings or years:', error);
             }

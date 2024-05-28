@@ -1,0 +1,40 @@
+.App{
+    position: relative;
+    top:50px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1050px;
+    height: 600px;
+    background-color: aliceblue;
+}
+.pic1{
+    position: relative;
+    width: 200px;
+    height: 250px;
+    overflow: auto;
+    margin-left: 50px;
+    margin-right: 50px;
+    padding: 50px 100px;
+}
+.pic2{
+    position: relative;
+    width: 200px;
+    height: 250px;
+    overflow: auto;
+    margin-left: 50px;
+    margin-right: 50px;
+    padding: 50px 100px;
+}
+.btn1{
+    position: relative;
+    margin: 58px;
+    padding-left: 100px;
+}
+.btn2{
+    position: relative;
+    margin: 58px;
+    top:-80px;
+    left: 400px;
+    padding-left: 200px;
+}

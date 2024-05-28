@@ -1,0 +1,25 @@
+name: Update README on Issue Close
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Update README.md
+      run: |
+        sed -i "1s/^/Latest issue closed by: ${{ github.actor }}\n/" README.md
+
+    - name: Commit changes
+      run: |
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
+        git add README.md
+        git commit -m "Update README.md with latest issue closer"
+        git push

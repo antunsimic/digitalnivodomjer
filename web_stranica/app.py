@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon May 13 01:17:41 2024
-
-@author: antun_81f2caf
-"""
-
 from flask import Flask, request, render_template, send_file, jsonify, session
 from bazaPodatakaFunct import upload_db, download_db, delete_db, vodomjeri_availability
 import atexit
@@ -14,7 +7,7 @@ from werkzeug.utils import secure_filename
 from bankovni_izvodi import ucitavanje_izvoda
 from ApatorMaddalena import ocitanja_vodomjera
 from godisnjaPotrosnjaFunct import get_consumption, get_godine, get_korisnici, get_zgrade, get_filter_data
-
+from izracunObracuna import izracunObracuna
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)  # Allow credentials for cross-origin requests
@@ -107,7 +100,8 @@ def upload_izvjestaj():
 
     ###unosi u bazu podataka
     ucitavanje_izvoda()
-    ocitanja_vodomjera()
+    if ocitanja_vodomjera():
+        izracunObracuna()
     ###/unosi u bazu podataka
 
     #brisu se sve datoteke iz 'uploads' foldera

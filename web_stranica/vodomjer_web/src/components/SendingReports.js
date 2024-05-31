@@ -26,7 +26,7 @@ const SendingReports = () => {
 
         const fetchData = async () => {
             try {
-                const sentResponse = await axios.get('/send');
+                const sentResponse = await axios.get('/send_emails');
                 setResponse(sentResponse.data || []);
             } catch (error) {
                 console.error('Error sending reports:', error);

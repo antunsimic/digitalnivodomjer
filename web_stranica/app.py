@@ -164,6 +164,24 @@ def get_consumption_data():
     else:
         return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
 
+@app.route('/reports', methods=['GET'])
+def get_reports():
+    if session.get("uploaded_file"):
+        try:
+            files_vodovod = os.listdir('izvjestaji/vodovod')
+            files_zgrade = os.listdir('izvjestaji/zgrade')
+            files = files_vodovod + files_zgrade
+            #return jsonify({
+            #    'vodovod_reports': files_vodovod,
+            #    'zgrade_reports': files_zgrade
+            #})
+            return jsonify(files)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': 'Baza podataka nije uploadana'})
+    
+
 if __name__ == '__main__':
     app.run(debug=True)
 

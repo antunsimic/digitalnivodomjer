@@ -11,12 +11,14 @@ from envs import SMTP_SERVER, SMTP_PORT
 
 
 # samostalna funkcija za generiranje imena izvjestaja za zgrade
-def generate_filename(adresa, najnovije_razdoblje):
+def generate_filename(adresa, najnovije_razdoblje, tip):
     adresa = adresa.replace('/', '_')
     adresa_split = adresa.split()
     adresa_formatted = '_'.join([r[:6] for r in adresa_split])
     najnovije_razdoblje = str(najnovije_razdoblje)
-    MM = najnovije_razdoblje[-2:]
+    MM = najnovije_razdoblje[5:7]  # Extract month
+    if len(MM) == 1:
+        MM = '0' + MM  # Ensure month is two digits
     YYYY = najnovije_razdoblje[:4]
 
     return f"{adresa_formatted}_{MM}_{YYYY}.pdf"
@@ -65,7 +67,7 @@ def send_email(subject, body, to_address, attachment_path=None):
 # funkcija za dohvaćanje kontakata zgrada, njima namijenjenim izvješcćima te proslijeđivanje funkciji send_email
 def send_reports_for_zgrade(cursor):
     feedback_msg = []
-    
+    tip = 'pdf'
     rows = cursor.execute("SELECT Kontakt_email, Ulica_kbr FROM Zgrada").fetchall()
    
     subject = 'Izvještaj potrošnje za zgradu'
@@ -77,7 +79,7 @@ def send_reports_for_zgrade(cursor):
         email_address = row[0]
         ulica_kbr = row[1]
         # generiranje naziva datoteke iz Ulica_kbr i Razdoblje obracun vrijednosti
-        filename = generate_filename(ulica_kbr, najnovije_razdoblje)  
+        filename = generate_filename(ulica_kbr, najnovije_razdoblje, tip)  
         # kreiranje putanje do izvjestaja cije ime je generirano
         attachment_path = os.path.join('izvjestaji', 'zgrade', filename)
         # ako navedena datoteka/putanja i email zgrade postoje pošalji mail

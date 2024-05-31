@@ -9,6 +9,7 @@ import './App.css';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthStatusChecker from './components/AuthStatusChecker'; // Import the new component
 import LineChart from './components/LineChart';
+import SendingReports from './components/SendingReports';
 
 import { DatabaseProvider } from './contexts/DatabaseProvider';  // Import the new provider
 import ImportFiles from './components/ImportFiles';
@@ -30,6 +31,7 @@ const App = () => {
                   <Route path="/baza" element={<DatabasePage />} />
                   <Route path="/ucitavanje" element={<ImportFiles />} />
                   <Route path="/" element={<LineChart />} />
+                  <Route path="/slanje" element={<SendingReports />} />
                 </Routes>
               </div>
             </div>

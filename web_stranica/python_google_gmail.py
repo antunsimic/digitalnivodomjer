@@ -144,7 +144,7 @@ def get_report_list():
         try:
             files_vodovod = os.listdir('izvjestaji/vodovod')
             files_zgrade = os.listdir('izvjestaji/zgrade')
-            files = files_vodovod + files_zgrade
+            files = files_zgrade + files_vodovod
             
             return jsonify(files)
         except Exception as e:

@@ -8,8 +8,8 @@ from bankovni_izvodi import ucitavanje_izvoda
 from ApatorMaddalena import ocitanja_vodomjera
 from godisnjaPotrosnjaFunct import get_consumption, get_godine, get_korisnici, get_zgrade, get_filter_data
 from izracunObracuna import izracunObracuna
-from python_google_gmail import send_email, send_both_mails
-from python_google_gmail import send_reports_for_zgrade
+from python_google_gmail import get_report_list, send_both_mails
+
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)  # Allow credentials for cross-origin requests
@@ -166,27 +166,16 @@ def get_consumption_data():
     else:
         return jsonify({'error': 'Baza nije uploadana ili korisnik nije ulogiran'})
 
+# vracanje liste izvjestaji za prikaz na stranici slanja emailova
 @app.route('/reports', methods=['GET'])
 def get_reports():
-    if session.get("uploaded_file"):
-        try:
-            files_vodovod = os.listdir('izvjestaji/vodovod')
-            files_zgrade = os.listdir('izvjestaji/zgrade')
-            files = files_vodovod + files_zgrade
-            #return jsonify({
-            #    'vodovod_reports': files_vodovod,
-            #    'zgrade_reports': files_zgrade
-            #})
-            return jsonify(files)
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-    else:
-        return jsonify({'error': 'Baza podataka nije uploadana'})
+     return get_report_list()
 
+# slanje emailova     
 @app.route('/send_emails')
 def get_slanje():
-        return send_reports_for_zgrade()
-        #return send_both_mails()
+    return send_both_mails()
+    
 if __name__ == '__main__':
     app.run(debug=True)
 

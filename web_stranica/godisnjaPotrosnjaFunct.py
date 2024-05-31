@@ -3,7 +3,7 @@ import sqlite3
 
 def connect_to_db():
     filepath = session.get("uploaded_file")
-    print(filepath)
+    #print(filepath)
     #conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
     conn = sqlite3.connect(filepath)    
     cursor = conn.cursor()

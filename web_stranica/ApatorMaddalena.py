@@ -152,5 +152,6 @@ def ocitanja_vodomjera():
 
     conn.commit()
     conn.close() #zatvaranje veze s bazom podataka
+    return brojUnosa
 
 #ocitanja_vodomjera()

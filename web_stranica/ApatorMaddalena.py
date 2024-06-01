@@ -1,7 +1,7 @@
 import datetime
 import os
 import sqlite3
-#import pandas as pd  # biblioteka za rad s podacima
+import pandas as pd  # biblioteka za rad s podacima
 
 # deklaracija klase koja sadržava sve potrebne informacije
 # float varijable su spremljene kao stringovi da se izbjegnu krivi zapisi zbog nepreciznosti float vrijable

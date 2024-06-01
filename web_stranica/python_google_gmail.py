@@ -9,6 +9,8 @@ from godisnjaPotrosnjaFunct import connect_to_db
 from flask import session, jsonify
 from envs import SMTP_SERVER, SMTP_PORT
 
+# globalna varijabla za zapis statusa poslanog emaila
+feedback_msg = []
 
 # samostalna funkcija za generiranje imena izvjestaja za zgrade
 def generate_filename(adresa, najnovije_razdoblje, tip):
@@ -66,7 +68,7 @@ def send_email(subject, body, to_address, attachment_path=None):
 
 # funkcija za dohvaćanje kontakata zgrada, njima namijenjenim izvješcćima te proslijeđivanje funkciji send_email
 def send_reports_for_zgrade(cursor):
-    feedback_msg = []
+    #feedback_msg = []
     tip = 'pdf'
     rows = cursor.execute("SELECT Kontakt_email, Ulica_kbr FROM Zgrada").fetchall()
    
@@ -88,7 +90,7 @@ def send_reports_for_zgrade(cursor):
             feedback_msg.append(send_email(subject, body, email_address, attachment_path))
         else:
             feedback_msg.append(f'Na {email_address} NIJE uspješno slanje izvještaja {os.path.basename(attachment_path)}')
-    return feedback_msg
+    #return feedback_msg
 
 
 def create_zip(zip_name, directory):
@@ -101,7 +103,7 @@ def create_zip(zip_name, directory):
 
 # funkcija za dohvaćanje kontakata u Vodovod tablici, sakupljanje izvjesaja za vodovod u jednu datoteku i proslijeđivanje funkciji send_email
 def send_reports_for_vodovod(cursor):
-    feedback_msg = []
+    #feedback_msg = []
     rows = cursor.execute("SELECT Kontakt_email FROM Vodovod").fetchall()
 
     subject = 'Izvještaj za vodovod'
@@ -115,31 +117,30 @@ def send_reports_for_vodovod(cursor):
     # za svaki email u Vodovod pošalji email (ako postoji zip)
     for row in rows:
         email_address = row[0]
-        if os.path.exists(zip_path):
+        if os.path.exists(zip_path) and email_address is not None:
             feedback_msg.append(send_email(subject, body, email_address, zip_path))
         else:
             feedback_msg.append(f'Na {email_address} NIJE uspješno slanje izvještaja {zip_name}')
 
     os.remove(zip_path)  # brisanje zip datoteke
-    return feedback_msg
+    #return feedback_msg
 
 def send_both_mails():
     # povezivanje na bazu podataka preko funkcije u godisnjaPotrosnjaFunck.py
     conn, cursor = connect_to_db()
     
     if session.get("logged_in"):
-        feedback_zgrade = send_reports_for_zgrade(cursor)
-        #print(feedback_zgrade)
-        feedback_vodovod = send_reports_for_vodovod( cursor)   
-        #print(feedback_vodovod)
-        combined_feedback = feedback_zgrade + feedback_vodovod
-    else:
-        combined_feedback = "Potrebno je ulogirati se sa validnom email adresom i lozinkom/app password"
+         
+        send_reports_for_zgrade(cursor)
+        
+        send_reports_for_vodovod( cursor)   
     
     conn.close()
-    return jsonify(combined_feedback)
+ 
 
+# dohvaćanje liste izvještaja za prikaz na frontendu
 def get_report_list():
+    feedback_msg.clear()
     if session.get("uploaded_file"):
         try:
             files_vodovod = os.listdir('izvjestaji/vodovod')
@@ -152,3 +153,7 @@ def get_report_list():
     else:
         return jsonify({'error': 'Baza podataka nije uploadana'})
     
+def get_mail_status():
+    global feedback_msg
+    print(feedback_msg)
+    return jsonify(feedback_msg)

@@ -8,7 +8,7 @@ from bankovni_izvodi import ucitavanje_izvoda
 from ApatorMaddalena import ocitanja_vodomjera
 from godisnjaPotrosnjaFunct import get_consumption, get_godine, get_korisnici, get_zgrade, get_filter_data
 from izracunObracuna import izracunObracuna
-from python_google_gmail import get_report_list, send_both_mails
+from python_google_gmail import get_report_list, send_both_mails, get_mail_status
 
 
 app = Flask(__name__)
@@ -16,8 +16,6 @@ CORS(app, supports_credentials=True)  # Allow credentials for cross-origin reque
 app.secret_key = 'your_really_secret_key_here'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = True  # Use if HTTPS is enabled
-
-
 
 
 UPLOAD_FOLDER = 'uploads'
@@ -175,6 +173,13 @@ def get_reports():
 @app.route('/send_emails')
 def get_slanje():
     return send_both_mails()
+
+# dohvaćanje statusa emaila kako bi se prikazivali live
+@app.route('/email_status', methods=['GET'])
+def get_email_status():
+    return get_mail_status()
+    
+
     
 if __name__ == '__main__':
     app.run(debug=True)

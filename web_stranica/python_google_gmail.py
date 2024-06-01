@@ -137,7 +137,7 @@ def send_both_mails():
         combined_feedback = "Potrebno je ulogirati se sa validnom email adresom i lozinkom/app password"
     
     conn.close()
-    return combined_feedback
+    return jsonify(combined_feedback)
 
 def get_report_list():
     if session.get("uploaded_file"):

@@ -136,6 +136,7 @@ def send_both_mails():
         send_reports_for_vodovod( cursor)   
     
     conn.close()
+    return "done"
  
 
 # dohvaćanje liste izvještaja za prikaz na frontendu

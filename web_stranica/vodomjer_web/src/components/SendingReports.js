@@ -59,12 +59,21 @@ const SendingReports = () => {
             // delay prije kraja pollinga kako bi stigla i zadnja poruka
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // kraj polinga NE RADI - ako otkriješ kako napravit
+            // kraj polinga - ne bi trebalo zbog cleanup ispod al zbog nekog razloga nije reliable bez ovoga
             stopPolling();
         } catch (error) {
             console.error('Error sending reports:', error);
         }
     };
+    useEffect(() => {
+        // Cleanup function to stop polling when component unmounts
+        return () => {
+            if (pollingInterval) {
+                stopPolling();
+            }
+        };
+    }, [pollingInterval]);
+    
 
     
 

@@ -1,8 +1,13 @@
 import sqlite3
 from datetime import datetime
 import os
-
+import chardet
     
+
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as file:
+        result = chardet.detect(file.read())
+        return result['encoding']
 
 
 def process_file(file_path):
@@ -13,7 +18,8 @@ def process_file(file_path):
     database_path = os.path.abspath(database_path)
     conn = sqlite3.connect(database_path, check_same_thread=False)
     cursor = conn.cursor()
-    with open(file_path, "r") as file:
+    encoding = detect_encoding(file_path)
+    with open(file_path, 'r', encoding=encoding) as file:
         readLines = file.readlines()
 
     datum = ''
@@ -67,5 +73,3 @@ def ucitavanje_izvoda():
             process_file(file_path)
     conn.close()
     print("Completed processing all files.")
-
-#ucitavanje_izvoda()

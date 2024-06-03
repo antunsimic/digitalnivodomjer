@@ -22,6 +22,16 @@ const SendingReports = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const reportsContainer = document.querySelector('.reports');
+        reportsContainer.scrollTop = reportsContainer.scrollHeight;
+    }, [reports]);
+
+    useEffect(() => {
+        const emailStatusContainer = document.querySelector('.send-info');
+        emailStatusContainer.scrollTop = emailStatusContainer.scrollHeight;
+    }, [emailStatus]);
+
     const startPolling = () => {
         // Namjesti polling interval
         const interval = setInterval(fetchEmailStatus, 1000); // Poll every second
@@ -92,7 +102,7 @@ const SendingReports = () => {
             <div className='send-info'>
                 Status slanja izvještaja:
                 {emailStatus.map((status, index) => (
-                    <div key={index}>{status}</div>
+                    <div key={index} className='status-message'>{status}</div>
                 ))}
             </div>
         </div>

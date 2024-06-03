@@ -1,0 +1,14 @@
+# .github/workflows/auto-assign.yml
+name: Auto Assign
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  add-reviews:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kentaro-m/auto-assign-action@v2.0.0
+        with:
+          repo-token: ${{ github.token }}
+          configuration-path: '.github/postavi-korisnike.yml'

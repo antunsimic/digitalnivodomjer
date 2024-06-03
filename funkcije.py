@@ -5,19 +5,15 @@ def fetch_zgrade(cursor):
     cursor.execute('SELECT DISTINCT ID_zgrada FROM Korisnik')
     return cursor.fetchall()
 
-def fetch_adresa(cursor, zgrada_id):
-    cursor.execute('SELECT Ulica_kbr FROM Zgrada WHERE ID_zgrada = ?', (zgrada_id,))
-    adresa = cursor.fetchone()[0]
-    return adresa.replace('/', '_')
-
 def format_adresa(adresa):
+    adresa = adresa.replace('/', '_')
     adresa_split = adresa.split()
-    return '_'.join([r[:6] for r in adresa_split])
+    adresa_formatted = '_'.join([r[:6] for r in adresa_split])
+    return adresa_formatted
 
 def fetch_najnovije_razdoblje(cursor):
     cursor.execute('SELECT MAX(Razdoblje_obracun) FROM Obracun')
-    najnovije_razdoblje = cursor.fetchone()[0]
-    return str(najnovije_razdoblje)
+    return cursor.fetchone()[0]
 
 def fetch_korisnici_data(cursor, zgrada_id, najnovije_razdoblje):
     cursor.execute('''
@@ -31,9 +27,10 @@ def fetch_korisnici_data(cursor, zgrada_id, najnovije_razdoblje):
     return cursor.fetchall()
 
 def create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data):
+    najnovije_razdoblje = str(najnovije_razdoblje)
     MM = najnovije_razdoblje[-2:]
     YYYY = najnovije_razdoblje[:4]
-
+    
     workbook = xlsxwriter.Workbook(f'{adresa_formatted}_{MM}_{YYYY}.xlsx')
     worksheet = workbook.add_worksheet()
 
@@ -42,11 +39,11 @@ def create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data):
         worksheet.set_column(col, col, width)
 
     headers = ["ID", "Šifra korisnika", "Šifra MM", "Ime i prezime", "Potrošnja HV", "Potrošnja SV", "Razlika"]
-    cell_format = workbook.add_format({'border': 1})
+    cell_format = workbook.add_format({'border': 1}) 
     for col, header in enumerate(headers):
         worksheet.write(0, col, header, cell_format)
 
-    yellow_format = workbook.add_format({'bg_color': '#FFFF00', 'border': 1})
+    yellow_format = workbook.add_format({'bg_color': '#FFFF00', 'border': 1})  
     green_format = workbook.add_format({'bg_color': '#00FF00', 'border': 1})
 
     row = 1
@@ -62,22 +59,3 @@ def create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data):
         row += 1
 
     workbook.close()
-
-def main():
-    conn = sqlite3.connect('vodomjeri.db')
-    cursor = conn.cursor()
-
-    zgrade = fetch_zgrade(cursor)
-    najnovije_razdoblje = fetch_najnovije_razdoblje(cursor)
-
-    for zgrada in zgrade:
-        zgrada_id = zgrada[0]
-        adresa = fetch_adresa(cursor, zgrada_id)
-        adresa_formatted = format_adresa(adresa)
-        korisnici_data = fetch_korisnici_data(cursor, zgrada_id, najnovije_razdoblje)
-        create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data)
-
-    conn.close()
-
-if __name__ == '__main__':
-    main()

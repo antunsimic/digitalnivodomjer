@@ -13,6 +13,7 @@ import SendingReports from './components/SendingReports';
 
 import { DatabaseProvider } from './contexts/DatabaseProvider';  // Import the new provider
 import ImportFiles from './components/ImportFiles';
+import CreateReport from './components/CreateReport';
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
                   <Route path="/ucitavanje" element={<ImportFiles />} />
                   <Route path="/" element={<LineChart />} />
                   <Route path="/slanje" element={<SendingReports />} />
+                  <Route path="/izvjestaj" element={<CreateReport />} />
                 </Routes>
               </div>
             </div>

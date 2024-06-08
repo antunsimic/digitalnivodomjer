@@ -1,13 +1,14 @@
 from flask import request, jsonify, session
+from connectToDb import connect_to_db
 import sqlite3
 
-def connect_to_db():
-    filepath = session.get("uploaded_file")
-    #print(filepath)
+#def connect_to_db():
+#    filepath = session.get("uploaded_file")
+#    print(filepath)
     #conn = sqlite3.connect('web_stranica/datoteke/vodomjeri.db')
-    conn = sqlite3.connect(filepath)    
-    cursor = conn.cursor()
-    return conn, cursor
+#    conn = sqlite3.connect(filepath)    
+#    cursor = conn.cursor()
+#    return conn, cursor
 
 #### TREBALO BI NAMJESTIT DA TE PRVO ODABIRE ZGRADA PA SE TADA NA ON CHANGE DOHVACAJU DOSPIPNI KORISNICI,
 #### KADA SE ODABRA KORISNIKA NA ON CHANGE SSE DOHVATE GODINE

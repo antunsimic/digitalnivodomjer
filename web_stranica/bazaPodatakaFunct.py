@@ -8,8 +8,9 @@ UPLOAD_FOLDER = 'datoteke'
 
 def upload_db():
     # ako ne postoji UPLOAD_FOLDER napravi ga 
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
+    db_filepath = os.path.join(session.get('user_id'), UPLOAD_FOLDER)
+    if not os.path.exists(db_filepath):
+        os.makedirs(db_filepath)
     
     #ako nije nađena baza - trebalo bi biti spriječeno sa frontend strane ali za svaki slucaj
     if 'database' not in request.files:
@@ -23,7 +24,8 @@ def upload_db():
     # ako je uploadan file s podrzanom ekstenzijom uploadaj
     if file.filename.endswith('.db'):
         filename = DATABASE_NAME
-        filepath=os.path.join(UPLOAD_FOLDER, filename)
+        filepath=os.path.join(db_filepath, filename)
+        
         file.save(filepath)
         session["uploaded_file"]=filepath
         return jsonify({'success': 'Upload successful', 'filename': filename})
@@ -34,7 +36,7 @@ def upload_db():
 def download_db():
     
         filepath = session.get("uploaded_file")
-        
+        print(filepath)
         # Provjera ako postoji
         if filepath and os.path.exists(filepath):
             return send_file(filepath, as_attachment=True)

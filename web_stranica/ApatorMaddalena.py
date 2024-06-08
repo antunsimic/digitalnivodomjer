@@ -2,7 +2,8 @@ import datetime
 import os
 import sqlite3
 import pandas as pd  # biblioteka za rad s podacima
-
+from userDirManagement import get_user_upload_path
+from connectToDb import connect_to_db
 # deklaracija klase koja sadržava sve potrebne informacije
 # float varijable su spremljene kao stringovi da se izbjegnu krivi zapisi zbog nepreciznosti float vrijable
 class RFU30:
@@ -39,7 +40,8 @@ def ocitanja_vodomjera():
     # svi podatci datoteke spremljeni u listu
     ParsedDataApator = []
     
-    directory = os.path.join(os.path.dirname(__file__), 'uploads')
+    #directory = os.path.join(os.path.dirname(__file__), 'uploads')
+    directory = get_user_upload_path()
     directory = os.path.abspath(directory)
     print(directory)
     apator_files = [file for file in os.listdir(directory) if file.endswith('.txt')]
@@ -99,11 +101,11 @@ def ocitanja_vodomjera():
 
     ###################    /MADDALENA PARSING   ########################################
 
-    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
-    database_path = os.path.abspath(database_path)
-    conn = sqlite3.connect(database_path, check_same_thread=False)
-    cur = conn.cursor()         #koristi se za SQL naredbe
-
+    #database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
+    #database_path = os.path.abspath(database_path)
+    #conn = sqlite3.connect(database_path, check_same_thread=False)
+    #cur = conn.cursor()         #koristi se za SQL naredbe
+    conn, cur = connect_to_db()
     #iteriraj kroz frameove; dodaj
     for frame in data_frames:
         #iterirati dok god frame['Timestamp'][tableRow] nije NaN (NULL?)

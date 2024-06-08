@@ -9,7 +9,8 @@ from ApatorMaddalena import ocitanja_vodomjera
 from godisnjaPotrosnjaFunct import get_consumption, get_godine, get_korisnici, get_zgrade, get_filter_data
 from izracunObracuna import izracunObracuna
 from python_google_gmail import get_report_list, send_both_mails, get_mail_status
-
+from userDirManagement import prepare_user_directory, delete_user_dir, get_user_izvjestaji_vodovod_path, get_user_izvjestaji_zgrade_path, get_user_upload_path
+from uuid import uuid4
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)  # Allow credentials for cross-origin requests
@@ -17,20 +18,20 @@ app.secret_key = 'your_really_secret_key_here'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = True  # Use if HTTPS is enabled
 
-
-UPLOAD_FOLDER = 'uploads'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+#kako se sada koristi foler u user_dir smeta ovako kreiranje datoteke
+#UPLOAD_FOLDER = 'uploads'
+#if not os.path.exists(UPLOAD_FOLDER):
+#    os.makedirs(UPLOAD_FOLDER)
+#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # treba spojit u file gdje su i ostale rute
 
-# ruta koja obavlja upload slike er
+# ruta koja obavlja upload db
 @app.route('/upload', methods=['POST'])
 def upload():
     return upload_db()
     
-# ruta za download slike er
+# ruta za download db
 @app.route('/download', methods=['GET'])    
 def download():
     return download_db()
@@ -70,6 +71,9 @@ def login():
     session["email"] = email
     session["password"] = password
     session["logged_in"] = True
+    # pripremanje direktorija za spremanje datotteka vezanih za trenutnog korisnika
+    prepare_user_directory()
+    
     return jsonify({'success': True, 'message': 'Login successful'})
 
 
@@ -80,6 +84,8 @@ def logout():
         session.pop('logged_in', None)
         session.pop('email', None)  # Consider also cleaning up other session data.
         session.pop('password', None)
+        # brisanje datoteka vezanih za trenutnog korisnika
+        delete_user_dir()
         return jsonify({'success': True, 'message': 'Logout successful'})
     else:
         return "Već ste odjavljeni"
@@ -95,7 +101,7 @@ def upload_izvjestaj():
     for file in files:
         filename = secure_filename(file.filename)
         file_ext = filename.split('.')[-1].lower()
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file_path = os.path.join(get_user_upload_path(), filename)
         file.save(file_path)
 
     ###unosi u bazu podataka
@@ -105,9 +111,12 @@ def upload_izvjestaj():
     ###/unosi u bazu podataka
 
     #brisu se sve datoteke iz 'uploads' foldera
-    uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads')
+    #uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads')
+    #uploads_dir = os.path.abspath(uploads_dir)
+    # uzima se filepath preko get_user_upload_paath funkcije kako bi se uzeo path iz user_dir
+    uploads_dir = get_user_upload_path()
     uploads_dir = os.path.abspath(uploads_dir)
-
+    
     if os.path.exists(uploads_dir):
         for filename in os.listdir(uploads_dir):
             file_path = os.path.join(uploads_dir, filename)

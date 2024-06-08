@@ -5,10 +5,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 import zipfile # za kreiranje vodovod_reports.zip datoteke
-from godisnjaPotrosnjaFunct import connect_to_db
+from connectToDb import connect_to_db
 from flask import session, jsonify
 from envs import SMTP_SERVER, SMTP_PORT
+from userDirManagement import get_user_izvjestaji_vodovod_path, get_user_izvjestaji_zgrade_path
 
+#SMTP_SERVER = 'smtp.gmail.com'
+#SMTP_PORT = 465
 # globalna varijabla za zapis statusa poslanog emaila
 feedback_msg = []
 
@@ -83,11 +86,17 @@ def send_reports_for_zgrade(cursor):
         # generiranje naziva datoteke iz Ulica_kbr i Razdoblje obracun vrijednosti
         filename = generate_filename(ulica_kbr, najnovije_razdoblje, tip)  
         # kreiranje putanje do izvjestaja cije ime je generirano
-        attachment_path = os.path.join('izvjestaji', 'zgrade', filename)
+        #attachment_path = os.path.join('izvjestaji', 'zgrade', filename)
+        izvjestaji_path = get_user_izvjestaji_zgrade_path()
+        #uzimanje iz putanje iz datoteke trenutnog korisnika
+        attachment_path = os.path.join(izvjestaji_path, filename)
+        
         # ako navedena datoteka/putanja i email zgrade postoje pošalji mail
         if os.path.exists(attachment_path) and email_address is not None:
             # u feedback_msg listu se nadodaju odgovori na slanje svakog emaila radi prikaza na frontendu
             feedback_msg.append(send_email(subject, body, email_address, attachment_path))
+        elif not os.path.exists(attachment_path):
+            feedback_msg.append(f'Izvještaj {os.path.basename(attachment_path)} nije dostupan')
         else:
             feedback_msg.append(f'Na {email_address} NIJE uspješno slanje izvještaja {os.path.basename(attachment_path)}')
     #return feedback_msg
@@ -109,8 +118,9 @@ def send_reports_for_vodovod(cursor):
     subject = 'Izvještaj za vodovod'
     body = 'Poštovani,\n\nU prilogu se nalazi izvještaj za vodovod.'
     
-    # za slanje izvještaji se stavljaju u jeednu zip datoteku
-    attachment_dir = "izvjestaji/vodovod"
+    # za slanje izvještaji se stavljaju u jednu zip datoteku
+    #attachment_dir = "izvjestaji/vodovod"
+    attachment_dir = get_user_izvjestaji_vodovod_path()
     zip_name = 'vodovod_reports.zip'
     zip_path = create_zip(zip_name, attachment_dir)
 
@@ -144,8 +154,10 @@ def get_report_list():
     feedback_msg.clear()
     if session.get("uploaded_file"):
         try:
-            files_vodovod = os.listdir('izvjestaji/vodovod')
-            files_zgrade = os.listdir('izvjestaji/zgrade')
+            #files_vodovod = os.listdir('izvjestaji/vodovod')
+            files_vodovod = os.listdir(get_user_izvjestaji_vodovod_path())
+            #files_zgrade = os.listdir('izvjestaji/zgrade')
+            files_zgrade = os.listdir(get_user_izvjestaji_zgrade_path())
             files = files_zgrade + files_vodovod
             
             return jsonify(files)

@@ -7,14 +7,16 @@ Created on Wed May 29 15:36:49 2024
 
 import sqlite3
 from datetime import datetime as datum
+from connectToDb import connect_to_db
 import os
 
 
 def upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_tren, izvor="ocitanje"):
-    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
-    database_path = os.path.abspath(database_path)
-    conn = sqlite3.connect(database_path, check_same_thread=False)
-    cursor = conn.cursor()
+    #database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
+    #database_path = os.path.abspath(database_path)
+    #conn = sqlite3.connect(database_path, check_same_thread=False)
+    #cursor = conn.cursor()
+    conn, cursor = connect_to_db()
     # provjera postoji li vec u tablici
     cursor.execute('SELECT COUNT(*) FROM Obracun WHERE ID_korisnik = ? AND Razdoblje_obracun = ? AND Datum_obracun = ?', (korisnik_id, mjesec_godina, datum_tren))
     result = cursor.fetchone()[0]
@@ -30,11 +32,12 @@ def upisUTablicu(obracun_id, korisnik_id, mjesec_godina, zbroj_ocitanja, datum_t
 
 def izracunObracuna():
     # vjerojatno potrebno zamijenit s mysql.connector u buducnosti
-    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
-    database_path = os.path.abspath(database_path)
-    conn = sqlite3.connect(database_path, check_same_thread=False)
-    cursor = conn.cursor()
+    #database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
+    #database_path = os.path.abspath(database_path)
+    #conn = sqlite3.connect(database_path, check_same_thread=False)
+    #cursor = conn.cursor()
     
+    conn, cursor = connect_to_db()
     # selectaj sve korisnike 
     cursor.execute('SELECT DISTINCT ID_korisnik FROM Korisnik_oprema ORDER BY ID_korisnik')
     korisnici = cursor.fetchall()

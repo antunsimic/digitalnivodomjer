@@ -4,8 +4,11 @@ from uuid import uuid4
 import shutil
 
 def prepare_user_directory():
-    session['user_id'] = str(uuid4())  
-   
+    session['user_id'] = str(uuid4()
+                             )
+    # AKO SE TRAZI TRAJNI FOLDER  
+    #session['user_id'] = session.get('email', '').split('@')[0].replace('.', '_')
+    
     user_dir = os.path.join(session['user_id'])
     os.makedirs(user_dir, exist_ok=True)
     
@@ -49,6 +52,5 @@ def delete_user_dir():
         user_dir = os.path.join(user_id)
         if os.path.exists(user_dir):
             shutil.rmtree(user_dir)
-            # Optionally, you can also remove the user_id from the session
-            session.pop('user_id', None)
+    
             

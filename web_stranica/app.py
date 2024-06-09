@@ -73,6 +73,9 @@ def login():
     session["logged_in"] = True
     # pripremanje direktorija za spremanje datotteka vezanih za trenutnog korisnika
     prepare_user_directory()
+    # U SLUCAJU DA SE TRAZI TRAJNI FOLDER
+    #if os.path.join(session.get('user_id'), 'datoteke', 'vodomjeri.db'):
+    #    session['uploaded_file'] = os.path.join(session.get('user_id'), 'datoteke', 'vodomjeri.db')
     
     return jsonify({'success': True, 'message': 'Login successful'})
 
@@ -86,6 +89,10 @@ def logout():
         session.pop('password', None)
         # brisanje datoteka vezanih za trenutnog korisnika
         delete_user_dir()
+        session.pop('user_id', None)
+        # AKO SE TRAZI TRAJNI FOLDER
+        #if session.get('uploaded_file'):
+        #    session.pop('uploaded_file')
         return jsonify({'success': True, 'message': 'Logout successful'})
     else:
         return "Već ste odjavljeni"

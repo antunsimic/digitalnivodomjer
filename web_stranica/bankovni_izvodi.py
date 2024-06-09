@@ -2,7 +2,8 @@ import sqlite3
 from datetime import datetime
 import os
 import chardet
-    
+from connectToDb import connect_to_db
+from userDirManagement import get_user_upload_path
 
 def detect_encoding(file_path):
     with open(file_path, 'rb') as file:
@@ -11,13 +12,16 @@ def detect_encoding(file_path):
 
 
 def process_file(file_path):
-    directory = os.path.join(os.path.dirname(__file__), 'uploads')
-    directory = os.path.abspath(directory)
-
-    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
-    database_path = os.path.abspath(database_path)
-    conn = sqlite3.connect(database_path, check_same_thread=False)
-    cursor = conn.cursor()
+    #directory = os.path.join(os.path.dirname(__file__), 'uploads')
+    #directory = os.path.abspath(directory)
+    directory = get_user_upload_path()
+    
+    #database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
+    #database_path = os.path.abspath(database_path)
+    #conn = sqlite3.connect(database_path, check_same_thread=False)
+    #cursor = conn.cursor()
+    
+    conn, cursor = connect_to_db()
     encoding = detect_encoding(file_path)
     with open(file_path, 'r', encoding=encoding) as file:
         readLines = file.readlines()
@@ -59,13 +63,15 @@ def process_file(file_path):
 
 # List all .OTP files in the specified directory and process them
 def ucitavanje_izvoda():
-    directory = os.path.join(os.path.dirname(__file__), 'uploads')
-    directory = os.path.abspath(directory)
-
-    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
-    database_path = os.path.abspath(database_path)
-    conn = sqlite3.connect(database_path, check_same_thread=False)
-    cursor = conn.cursor()
+    #directory = os.path.join(os.path.dirname(__file__), 'uploads')
+    #directory = os.path.abspath(directory)
+    directory = get_user_upload_path()
+    #database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
+    #database_path = os.path.abspath(database_path)
+    #conn = sqlite3.connect(database_path, check_same_thread=False)
+    #cursor = conn.cursor()
+    
+    conn, cursor = connect_to_db()
     for filename in os.listdir(directory):
         print(filename)
         if filename.endswith(".OTP"):

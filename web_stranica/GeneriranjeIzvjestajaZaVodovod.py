@@ -2,6 +2,7 @@ import sqlite3
 import xlsxwriter
 import os
 
+
 def fetch_zgrade(cursor):
     cursor.execute('SELECT DISTINCT ID_zgrada FROM Korisnik')
     return cursor.fetchall()
@@ -35,7 +36,8 @@ def create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data):
     MM = najnovije_razdoblje[-2:]
     YYYY = najnovije_razdoblje[:4]
 
-    workbook = xlsxwriter.Workbook(f'{adresa_formatted}_{MM}_{YYYY}.xlsx')
+    excel_path = os.path.join(os.path.dirname(__file__), 'izvjestaji', 'vodovod')       #POTENCIJALNI PROBLEM U PUTANJI
+    workbook = xlsxwriter.Workbook(f'{excel_path}/{adresa_formatted}_{MM}_{YYYY}.xlsx') #POTENCIJALNI PROBLEM U PUTANJI
     worksheet = workbook.add_worksheet()
 
     column_widths = [10, 15, 10, 20, 15, 15, 15]
@@ -66,7 +68,7 @@ def create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data):
 
 def generacija_izvjestaja_vodovod():
     database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db') #POTENCIJALNI PROBLEM U PUTANJI
-    conn = sqlite3.connect(database_path)
+    conn = sqlite3.connect(database_path)                                               #POTENCIJALNI PROBLEM U PUTANJI
     cursor = conn.cursor()
 
     zgrade = fetch_zgrade(cursor)
@@ -80,6 +82,7 @@ def generacija_izvjestaja_vodovod():
         create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data)
 
     conn.close()
+    return "uspjeh"
 
 
 #def main():

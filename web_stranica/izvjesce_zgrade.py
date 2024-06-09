@@ -4,6 +4,7 @@ from reportlab.platypus import  Paragraph, Spacer
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
 import os
+from flask import jsonify
 
 class vodomjer:
     def __init__(self, broj_vodomjer, broj_modul, ID, ocitanje, lokacija):
@@ -36,9 +37,9 @@ Korisnici = []
 Izvjesca = []
 
 def generacija_izvjestaja_zgrade():
-    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
+    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db') #POTENCIJALNI PROBLEM U PUTANJI
 
-    conn = sqlite3.connect(database_path)
+    conn = sqlite3.connect(database_path)                                               #POTENCIJALNI PROBLEM U PUTANJI
 
     c = conn.cursor()
 
@@ -97,12 +98,13 @@ def generacija_izvjestaja_zgrade():
 
     conn.close()
     kreiraj_pdf()
+    return "uspjeh"
 # Kreiranje .pdf datoteke-------------------------------------------------------------------------------------------
 
 def create_pdf(zgrada):
     # Fetching the latest accounting period in YYYYMM format
-    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db')
-    conn = sqlite3.connect(database_path)
+    database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db') #POTENCIJALNI PROBLEM U PUTANJI
+    conn = sqlite3.connect(database_path)                                               #POTENCIJALNI PROBLEM U PUTANJI
     cursor = conn.cursor()
     cursor.execute("SELECT MAX(Razdoblje_obracun) FROM Obracun")
     najnovije_razdoblje = cursor.fetchone()[0]
@@ -123,7 +125,8 @@ def create_pdf(zgrada):
     adresa_formatted = '_'.join([r[:6] for r in adresa_split])
 
     # Set up the PDF document
-    doc_filename = f'{adresa_formatted}_{MM}_{YYYY}.pdf'
+    pdf_path = os.path.join(os.path.dirname(__file__), 'izvjestaji', 'zgrade') #POTENCIJALNI PROBLEM U PUTANJI
+    doc_filename = f'{pdf_path}/{adresa_formatted}_{MM}_{YYYY}.pdf'            #POTENCIJALNI PROBLEM U PUTANJI
     doc = SimpleDocTemplate(doc_filename, rightMargin=60, leftMargin=60)
 
     elementi = []

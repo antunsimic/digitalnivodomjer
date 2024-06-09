@@ -41,3 +41,14 @@
     align-items: center;
     justify-content: center;
   }
+
+  .download-button-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+  }
+  
+  
+  .download-button {
+    margin-left: 20px;
+  }

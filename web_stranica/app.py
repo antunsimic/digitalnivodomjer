@@ -9,6 +9,9 @@ from ApatorMaddalena import ocitanja_vodomjera
 from godisnjaPotrosnjaFunct import get_consumption, get_godine, get_korisnici, get_zgrade, get_filter_data
 from izracunObracuna import izracunObracuna
 from python_google_gmail import get_report_list, send_both_mails, get_mail_status
+from GeneriranjeIzvjestajaZaVodovod import generacija_izvjestaja_vodovod
+from izvjesce_zgrade import generacija_izvjestaja_zgrade
+from DobavljanjeIzvjestaja import get_zgrade, get_vodovod, preuzimanje_zgrada, preuzimanje_vodovod
 
 
 app = Flask(__name__)
@@ -178,6 +181,33 @@ def get_slanje():
 @app.route('/email_status', methods=['GET'])
 def get_email_status():
     return get_mail_status()
+
+# generiraj izvjestaje za zgradu
+@app.route('/generiraj-izvjestaj-za-zgradu', methods=['POST'])
+def generacija_zgrada():
+    return generacija_izvjestaja_zgrade()
+
+@app.route('/get-izvjestaj-za-zgradu', methods=['GET'])
+def dobavljanje_zgrada():
+    return get_zgrade()
+
+# generiraj izvjestaje za vodovod
+@app.route('/generiraj-izvjestaj-za-vodovod', methods=['POST'])
+def generacija_vodovod():
+    return generacija_izvjestaja_vodovod()
+
+@app.route('/get-izvjestaj-za-vodovod', methods=['GET'])
+def dobavljanje_vodovod():
+    return get_vodovod()
+
+@app.route('/download-zgrada', methods=['GET'])
+def download_zgrada():
+    return preuzimanje_zgrada()
+
+
+@app.route('/download-vodovod', methods=['GET'])
+def download_vodovod():
+    return preuzimanje_vodovod()
     
 
     

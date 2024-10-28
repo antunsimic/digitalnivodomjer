@@ -102,6 +102,10 @@ def generacija_izvjestaja_zgrade():
 # Kreiranje .pdf datoteke-------------------------------------------------------------------------------------------
 
 def create_pdf(zgrada):
+        # Ensure the directory exists
+    directory = os.path.join('c:\\D\\projekti\\digitalnivodomjer-main\\web_stranica\\izvjestaji\\zgrade')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     # Fetching the latest accounting period in YYYYMM format
     database_path = os.path.join(os.path.dirname(__file__), 'datoteke', 'vodomjeri.db') #POTENCIJALNI PROBLEM U PUTANJI
     conn = sqlite3.connect(database_path)                                               #POTENCIJALNI PROBLEM U PUTANJI
@@ -171,9 +175,3 @@ def create_pdf(zgrada):
 def kreiraj_pdf():
     for izvjesce in Izvjesca:
         create_pdf(izvjesce)
-
-#def main():
-#    generacija_izvjestaja_zgrade()
-
-#if __name__ == "__main__":
-#    main()

@@ -35,6 +35,9 @@ def fetch_korisnici_data(cursor, zgrada_id, najnovije_razdoblje):
 def create_excel_file(adresa_formatted, najnovije_razdoblje, korisnici_data):
     MM = najnovije_razdoblje[-2:]
     YYYY = najnovije_razdoblje[:4]
+    directory = os.path.join('c:\\D\\projekti\\digitalnivodomjer-main\\web_stranica\\izvjestaji\\vodovod')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
     excel_path = os.path.join(os.path.dirname(__file__), 'izvjestaji', 'vodovod')       #POTENCIJALNI PROBLEM U PUTANJI
     workbook = xlsxwriter.Workbook(f'{excel_path}/{adresa_formatted}_{MM}_{YYYY}.xlsx') #POTENCIJALNI PROBLEM U PUTANJI
@@ -83,10 +86,3 @@ def generacija_izvjestaja_vodovod():
 
     conn.close()
     return "uspjeh"
-
-
-#def main():
-#    generacija_izvjestaja_vodovod()
-
-#if __name__ == '__main__':
-#    main()
